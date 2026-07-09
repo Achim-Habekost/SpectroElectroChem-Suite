@@ -1,36 +1,61 @@
-## Quick start on Windows
-
-1. Unzip this folder completely.
-2. Run `Install_required_Python_packages.bat` once.
-3. Run `Test_Installation.bat`.
-4. Start the suite with `Start_SpectroElectroChem_Suite.bat`.
-
-This Final package is directly runnable from the unpacked folder. It sets the local `src` folder automatically, so the error `No module named spectroelectrochem_suite` should no longer occur.
-
 # SpectroElectroChem Suite
 
-**Version 3.0.0**
+**Version 3.0.1 — First Public Release**
 
-SpectroElectroChem Suite is an open-source software package for the analysis and visualization of spectro-electrochemical data.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![GitHub release](https://img.shields.io/badge/release-v3.0.1-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
+[![DOI](https://img.shields.io/badge/DOI-Zenodo%20pending-lightgrey.svg)](https://zenodo.org/)
 
-## Version 3.0 highlights
+**SpectroElectroChem Suite** is open-source software for the analysis and visualization of spectro-electrochemical data. It supports Raman spectra, Raman/SERS voltammograms, absorptovoltammograms and fluorovoltammograms.
 
-- Modern Qt/PySide6-based main window
-- Menu bar, toolbar, module cards and status line
-- Unified appearance for all modules
-- Plugin registry for future methods such as IR, UV/Vis or NIR spectro-electrochemistry
-- Project-folder creation with standardized subfolders
-- PyInstaller configuration for Windows `.exe` builds
-- Inno Setup script for a real Windows installer
-- GitHub Actions workflow for automatic Windows builds
-- Local PDF manual and HTML help page
-- Update-check infrastructure for future GitHub Releases
+## Main features
+
+- Raman spectrum analysis
+- Raman and SERS voltammograms
+- Absorptovoltammograms
+- Fluorovoltammograms
+- Interactive 3D surface plots
+- Interactive waterfall plots
+- Waterfall values exported to Excel
+- Baseline correction
+- Savitzky–Golay smoothing
+- Heatmap and contour visualization
+- Excel, HTML, PNG and PDF export
+- Plugin-ready project architecture
 
 ## Modules
 
-1. Raman Spectrum Analysis
-2. SERS / Raman Voltammogram
-3. Absorpto- / Fluorovoltammogram
+1. **Raman Spectrum Analysis**  
+   Baseline correction, smoothing, peak detection and peak assignment.
+
+2. **SERS / Raman Voltammogram**  
+   Matrix CSV input with potentials in the first row and Raman shifts in the first column. Output includes interactive surface, heatmap, contour and waterfall visualizations.
+
+3. **Absorpto- / Fluorovoltammogram**  
+   Matrix CSV input with potentials in the first row and wavelengths in the first column. Output includes Excel data, surface plots, heatmaps, contour plots and waterfall values.
+
+## Quick start on Windows
+
+1. Download the release archive from GitHub.
+2. Unzip the archive completely.
+3. Run once:
+
+```text
+Install_required_Python_packages.bat
+```
+
+4. Optional test:
+
+```text
+Test_Installation.bat
+```
+
+5. Start the program:
+
+```text
+Start_SpectroElectroChem_Suite.bat
+```
 
 ## Start from source
 
@@ -39,17 +64,22 @@ pip install -r requirements.txt
 python main.py
 ```
 
-On Windows:
+## System requirements
 
-```text
-Start_SpectroElectroChem_Suite.bat
-```
+Recommended:
+
+- Windows 10 or Windows 11
+- Python 3.10 or newer
+
+Required Python packages are listed in `requirements.txt` and can be installed automatically with `Install_required_Python_packages.bat`.
 
 ## Build Windows executable
 
-```cmd
+```text
 scripts\build_exe_windows.bat
 ```
+
+The generated executable is written to the `dist` folder.
 
 ## Build Windows installer
 
@@ -59,24 +89,32 @@ After the PyInstaller build, install Inno Setup and compile:
 installer\SpectroElectroChem_Suite_InnoSetup.iss
 ```
 
+## File formats
+
+The voltammogram modules use matrix CSV files:
+
+- first row: potentials
+- first column: Raman shifts or wavelengths
+- remaining cells: intensities, absorptions or fluorescence values
+
+## Citation
+
+If you use this software in scientific work, please cite the accompanying publication and the archived software release.
+
+Recommended software citation:
+
+> Habekost, A. *SpectroElectroChem Suite: Software for Raman, SERS, absorption and fluorescence spectro-electrochemical data analysis*. Version 3.0.1. GitHub / Zenodo.
+
+A formal DOI will be added after Zenodo archiving.
+
 ## Acknowledgement
 
 Parts of the source code were developed with the assistance of OpenAI ChatGPT and were subsequently validated, modified and extended by the author.
 
 ## License
 
-MIT License.
+This project is distributed under the MIT License. See `LICENSE`.
 
-## Citation
+## Author
 
-Please see `CITATION.cff`.
-
-
-## v3.0 Final Raman waterfall update
-
-The SERS / Raman Voltammogram module now includes:
-- `Waterfall vertical offset`
-- Excel sheets for custom Raman waterfall plots:
-  - `Waterfall_Shifted_Values`
-  - `Waterfall_Unshifted_Values`
-  - `Waterfall_Offsets`
+Prof. Dr. Achim Habekost

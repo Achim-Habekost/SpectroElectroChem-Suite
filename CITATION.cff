@@ -5,8 +5,16 @@ type: software
 authors:
   - family-names: Habekost
     given-names: Achim
-version: 3.0.0
-date-released: 2026-07-08
+version: 3.0.1
+date-released: 2026-07-09
 license: MIT
-repository-code: "https://github.com/YOUR_GITHUB_NAME/SpectroElectroChem-Suite"
+repository-code: "https://github.com/Achim-Habekost/SpectroElectroChem-Suite"
 abstract: "Open-source software for the analysis and visualization of Raman, SERS, absorption and fluorescence spectro-electrochemical data."
+keywords:
+  - spectroelectrochemistry
+  - Raman spectroscopy
+  - SERS
+  - absorptovoltammetry
+  - fluorovoltammetry
+  - electrochemistry
+  - Python

@@ -1,19 +1,29 @@
 # Changelog
 
+## v3.0.1 — First Public Release
+
+- First public GitHub release candidate.
+- Added `.gitignore`.
+- Removed Python cache and compiled files.
+- Cleaned repository structure.
+- Updated README for publication and user installation.
+- Updated citation metadata.
+- Raman/SERS voltammogram module includes waterfall vertical offset.
+- Raman/SERS voltammogram module exports waterfall data to Excel:
+  - `Waterfall_Shifted_Values`
+  - `Waterfall_Unshifted_Values`
+  - `Waterfall_Offsets`
+
 ## v3.0.0
 
-- Added modern Qt/PySide6 main window.
-- Added menu bar and toolbar.
-- Added module cards with unified visual appearance.
-- Added project-folder creation.
-- Added plugin-ready architecture.
-- Added Inno Setup installer script.
-- Added GitHub Actions Windows build workflow.
-- Added local PDF manual and HTML help page.
-- Preserved existing scientific analysis modules.
+- Added modern central launcher architecture.
+- Added plugin-ready structure.
+- Added documentation and packaging files.
+- Added GitHub Actions workflow template.
 
-## v2.0.0
+## Earlier development versions
 
-- Added central GUI with plugin registry.
-- Added PDF manual and PyInstaller configuration.
-- Added GitHub Actions workflow.
+- Raman spectrum analysis.
+- SERS/Raman voltammogram visualization.
+- Absorpto-/fluorovoltammogram visualization.
+- Baseline correction, smoothing and Excel/HTML/PDF export.
