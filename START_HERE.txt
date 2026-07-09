@@ -1,4 +1,4 @@
-SpectroElectroChem Suite v3.0 Final
+SpectroElectroChem Suite v4.0.0
 
 Please do the following:
 
@@ -12,15 +12,7 @@ Please do the following:
    Start_SpectroElectroChem_Suite.bat
 
 Important:
-Do not start the files while they are still inside the ZIP archive.
+Do not start files while they are still inside the ZIP archive.
 The folder must be extracted first.
 
-This final package fixes the earlier error:
-No module named spectroelectrochem_suite
-
-If you later want a Windows EXE:
-- Run scripts/build_exe_windows.bat on Windows, or
-- upload the repository to GitHub and use the included GitHub Actions workflow.
-
-Raman waterfall update:
-The Raman/SERS module now includes vertical offset control and Excel sheets for waterfall data.
+For scientific citation, please use the GitHub release and the Zenodo DOI after archiving.

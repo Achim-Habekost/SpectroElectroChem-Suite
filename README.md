@@ -1,10 +1,10 @@
 # SpectroElectroChem Suite
 
-**Version 3.0.1 — First Public Release**
+**Version 4.0.0 — First Public Release**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![GitHub release](https://img.shields.io/badge/release-v3.0.1-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
+[![GitHub release](https://img.shields.io/badge/release-v4.0.0-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
 [![DOI](https://img.shields.io/badge/DOI-Zenodo%20pending-lightgrey.svg)](https://zenodo.org/)
 
 **SpectroElectroChem Suite** is open-source software for the analysis and visualization of spectro-electrochemical data. It supports Raman spectra, Raman/SERS voltammograms, absorptovoltammograms and fluorovoltammograms.
@@ -23,6 +23,7 @@
 - Heatmap and contour visualization
 - Excel, HTML, PNG and PDF export
 - Plugin-ready project architecture
+- Documentation and packaging templates for Windows builds
 
 ## Modules
 
@@ -79,8 +80,6 @@ Required Python packages are listed in `requirements.txt` and can be installed a
 scripts\build_exe_windows.bat
 ```
 
-The generated executable is written to the `dist` folder.
-
 ## Build Windows installer
 
 After the PyInstaller build, install Inno Setup and compile:
@@ -103,7 +102,7 @@ If you use this software in scientific work, please cite the accompanying public
 
 Recommended software citation:
 
-> Habekost, A. *SpectroElectroChem Suite: Software for Raman, SERS, absorption and fluorescence spectro-electrochemical data analysis*. Version 3.0.1. GitHub / Zenodo.
+> Habekost, A. *SpectroElectroChem Suite: Software for Raman, SERS, absorption and fluorescence spectro-electrochemical data analysis*. Version 4.0.0. GitHub / Zenodo.
 
 A formal DOI will be added after Zenodo archiving.
 

@@ -1,25 +1,21 @@
 # Changelog
 
-## v3.0.1 — First Public Release
+## v4.0.0 — First Public Release
 
-- First public GitHub release candidate.
-- Added `.gitignore`.
-- Removed Python cache and compiled files.
+- First official public release of SpectroElectroChem Suite.
 - Cleaned repository structure.
+- Added `.gitignore` and `.gitattributes`.
+- Removed Python cache and compiled files.
 - Updated README for publication and user installation.
 - Updated citation metadata.
+- Added release notes.
 - Raman/SERS voltammogram module includes waterfall vertical offset.
 - Raman/SERS voltammogram module exports waterfall data to Excel:
   - `Waterfall_Shifted_Values`
   - `Waterfall_Unshifted_Values`
   - `Waterfall_Offsets`
-
-## v3.0.0
-
-- Added modern central launcher architecture.
-- Added plugin-ready structure.
-- Added documentation and packaging files.
-- Added GitHub Actions workflow template.
+- Included Raman spectrum analysis, SERS/Raman voltammograms, absorptovoltammograms and fluorovoltammograms.
+- Included documentation and packaging templates for Windows builds.
 
 ## Earlier development versions
 
@@ -27,3 +23,4 @@
 - SERS/Raman voltammogram visualization.
 - Absorpto-/fluorovoltammogram visualization.
 - Baseline correction, smoothing and Excel/HTML/PDF export.
+- Plugin-ready structure and central launcher architecture.
