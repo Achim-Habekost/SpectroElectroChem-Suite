@@ -1,0 +1,26 @@
+SpectroElectroChem Suite v3.0 Final
+
+Please do the following:
+
+1. Unzip this folder completely.
+2. Double-click:
+   Install_required_Python_packages.bat
+   This only has to be done once.
+3. Double-click:
+   Test_Installation.bat
+4. Double-click:
+   Start_SpectroElectroChem_Suite.bat
+
+Important:
+Do not start the files while they are still inside the ZIP archive.
+The folder must be extracted first.
+
+This final package fixes the earlier error:
+No module named spectroelectrochem_suite
+
+If you later want a Windows EXE:
+- Run scripts/build_exe_windows.bat on Windows, or
+- upload the repository to GitHub and use the included GitHub Actions workflow.
+
+Raman waterfall update:
+The Raman/SERS module now includes vertical offset control and Excel sheets for waterfall data.

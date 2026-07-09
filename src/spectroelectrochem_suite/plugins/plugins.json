@@ -1,0 +1,22 @@
+{
+  "plugins": [
+    {
+      "id": "raman_spectrum",
+      "name": "Raman Spectrum Analysis",
+      "description": "Baseline correction, smoothing, peak detection and assignment.",
+      "module": "spectroelectrochem_suite.modules.raman_spectrum_analysis"
+    },
+    {
+      "id": "sers_raman_voltammogram",
+      "name": "SERS / Raman Voltammogram",
+      "description": "3D surface, heatmap, contour and rotatable waterfall plots.",
+      "module": "spectroelectrochem_suite.modules.sers_raman_voltammogram"
+    },
+    {
+      "id": "absorpto_fluoro",
+      "name": "Absorpto- / Fluorovoltammogram",
+      "description": "Absorption and fluorescence voltammograms with Excel and HTML output.",
+      "module": "spectroelectrochem_suite.modules.absorpto_fluoro_voltammogram"
+    }
+  ]
+}

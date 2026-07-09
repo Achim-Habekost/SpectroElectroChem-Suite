@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "SpectroElectroChem Suite"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: Habekost
+    given-names: Achim
+version: 3.0.0
+date-released: 2026-07-08
+license: MIT
+repository-code: "https://github.com/YOUR_GITHUB_NAME/SpectroElectroChem-Suite"
+abstract: "Open-source software for the analysis and visualization of Raman, SERS, absorption and fluorescence spectro-electrochemical data."

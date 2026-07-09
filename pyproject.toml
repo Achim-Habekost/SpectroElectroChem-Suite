@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spectroelectrochem-suite"
+version = "3.0.0"
+description = "Analysis software for Raman, SERS, absorption and fluorescence spectro-electrochemical data."
+authors = [{ name = "Achim Habekost" }]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "numpy",
+  "pandas",
+  "matplotlib",
+  "scipy",
+  "pybaselines",
+  "openpyxl",
+  "plotly",
+  "PySide6"
+]
+
+[project.scripts]
+spectroelectrochem-suite = "spectroelectrochem_suite.modern_app:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+spectroelectrochem_suite = ["plugins/*.json"]
