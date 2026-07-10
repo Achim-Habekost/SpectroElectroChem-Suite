@@ -12,7 +12,7 @@
 ## Graphical Overview
 
 <p align="center">
-  <img src="docs/images/Screeenshots.png"
+  <img src="docs/images/Overview.png"
        alt="SpectroElectroChem Suite graphical overview"
        width="900">
 </p>
