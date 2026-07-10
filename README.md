@@ -117,13 +117,21 @@ The voltammogram modules use matrix CSV files:
 
 ## Citation
 
-If you use this software in scientific work, please cite the accompanying publication and the archived software release.
+If you use SpectroElectroChem Suite in scientific work, please cite the Zenodo release:
+
+DOI: 10.5281/zenodo.21283232
 
 Recommended software citation:
 
-> Habekost, A. *SpectroElectroChem Suite: Software for Raman, SERS, absorption and fluorescence spectro-electrochemical data analysis*. Version 4.0.0. GitHub / Zenodo.
+Habekost, A. SpectroElectroChem Suite: Software for Raman, SERS, Absorption and Fluorescence Spectro-Electrochemical Data Analysis. Version 4.0.0. Zenodo. https://doi.org/10.5281/zenodo.21283232
 
-A formal DOI will be added after Zenodo archiving.
+The archived release can be accessed permanently via Zenodo:
+
+https://doi.org/10.5281/zenodo.21283232
+
+## Support
+
+Bug reports and feature requests are welcome via the GitHub Issues page.
 
 ## Acknowledgement
 
