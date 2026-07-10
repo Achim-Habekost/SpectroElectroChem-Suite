@@ -74,6 +74,14 @@ Recommended:
 
 Required Python packages are listed in `requirements.txt` and can be installed automatically with `Install_required_Python_packages.bat`.
 
+## Documentation
+
+A comprehensive user manual is available in the `docs` folder:
+
+- 📘 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.pdf)
+
+- 📝 [User Manual (Word)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.docx)
+
 ## Build Windows executable
 
 ```text
