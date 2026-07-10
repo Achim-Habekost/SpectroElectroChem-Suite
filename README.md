@@ -11,7 +11,11 @@
 
 ## Graphical Overview
 
-![SpectroElectroChem Suite](docs/images/Screenshots.png)
+<p align="center">
+  <img src="docs/images/Screeenshots.png"
+       alt="SpectroElectroChem Suite graphical overview"
+       width="900">
+</p>
 
 ## Documentation
 
