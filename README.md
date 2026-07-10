@@ -9,7 +9,7 @@
 
 **SpectroElectroChem Suite** is open-source software for the analysis and visualization of spectro-electrochemical data. It supports Raman spectra, Raman/SERS voltammograms, absorptovoltammograms and fluorovoltammograms.
 
-## Graphical Overview
+## Software Overview
 
 <p align="center">
   <img src="docs/images/Overview.png"
