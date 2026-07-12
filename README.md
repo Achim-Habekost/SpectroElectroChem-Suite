@@ -17,13 +17,6 @@
        width="900">
 </p>
 
-## Documentation
-
-A comprehensive User Manual is available for installation, operation, and data analysis:
-
-- 📘 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.pdf)
-- 📝 [User Manual (Word)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.docx)
-
 ## Main features
 
 - Raman spectrum analysis
