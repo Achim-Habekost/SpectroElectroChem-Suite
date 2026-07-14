@@ -9,6 +9,39 @@
 
 **SpectroElectroChem Suite** is open-source software for the analysis and visualization of spectro-electrochemical data. It supports Raman spectra, Raman/SERS voltammograms, absorptovoltammograms and fluorovoltammograms.
 
+## Purpose
+
+SpectroElectroChem Suite is an open-source desktop application for the processing,
+visualisation and export of Raman, SERS, absorption and fluorescence
+spectro-electrochemical data.
+
+The software is designed for researchers, educators and students working with
+potential-resolved spectroscopic datasets.
+
+## Contents
+
+- Installation
+- Quick Start
+- Main Features
+- Modules
+- Windows Installation
+- Documentation
+- Example Data
+- Citation
+- License
+
+## Documentation
+
+A complete user manual is available in docs/
+
+## Example data
+
+Example CSV files are located in
+
+examples/
+
+These datasets reproduce the workflows shown in the JOSS paper.
+
 ## Software Overview
 
 <p align="center">
@@ -17,6 +50,18 @@
        width="900">
 </p>
 
+## Installation
+
+Clone the repository
+
+## Quick Start
+
+1. Open the Raman module.
+2. Load an example CSV.
+3. Select baseline correction.
+4. Apply smoothing.
+5. Detect peaks.
+6. Export Excel and PNG.
 ## Main features
 
 - Raman spectrum analysis
