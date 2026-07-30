@@ -141,7 +141,7 @@ Install_required_Python_packages.bat
 If you use SpectroElectroChem Suite in scientific work, please cite the
 software using its permanent Zenodo Concept DOI:
 
-**DOI: DOI: https://doi.org/10.5281/zenodo.21283232**
+**Zenodo Concept DOI:** https://doi.org/10.5281/zenodo.21283232**
 
 For exact reproducibility, the DOI of the specific software version used
 may additionally be cited. Citation metadata are provided in
