@@ -88,7 +88,7 @@ such as Levich, Koutecký--Levich, Tafel and Butler--Volmer analysis.
 
 ### RRDE analysis
 
-![RRDE](images/rrde_analysis.png)
+![RRDE](images/rrde.png)
 
 *Figure 6. RRDE analysis module.*
 
