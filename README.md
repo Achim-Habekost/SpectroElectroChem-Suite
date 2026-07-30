@@ -1,188 +1,170 @@
 # SpectroElectroChem Suite
 
-**Version 4.0.1 — First Public Release**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283231.svg)](https://doi.org/10.5281/zenodo.21283231)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![GitHub release](https://img.shields.io/badge/release-v4.0.0-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283232.svg)](https://doi.org/10.5281/zenodo.21283232)
+**Open-source software for the analysis and visualization of
+spectroelectrochemical and rotating ring--disk electrode (RRDE) data**
 
-**SpectroElectroChem Suite** is open-source software for the analysis and visualization of spectro-electrochemical data. It supports Raman spectra, Raman/SERS voltammograms, absorptovoltammograms and fluorovoltammograms.
+![Main window](images/main_window.png)
 
-## Purpose
+*Figure 1. Main window of SpectroElectroChem Suite.*
 
-SpectroElectroChem Suite is an open-source desktop application for the processing,
-visualisation and export of Raman, SERS, absorption and fluorescence
-spectro-electrochemical data.
+------------------------------------------------------------------------
 
-The software is designed for researchers, educators and students working with
-potential-resolved spectroscopic datasets.
+## Overview
+
+SpectroElectroChem Suite is an open-source Python application for the
+analysis of electrochemical and spectroelectrochemical experiments. The
+software combines advanced visualization, quantitative data evaluation
+and publication-ready export functions within a graphical user
+interface.
+
+The suite supports Raman spectroscopy, Raman voltammetry,
+absorptovoltammetry, fluorovoltammetry and rotating ring--disk electrode
+(RRDE) measurements.
+
+The RRDE module includes comprehensive electrochemical evaluation tools
+such as Levich, Koutecký--Levich, Tafel and Butler--Volmer analysis.
 
 ## Contents
 
-- Installation
-- Quick Start
-- Main Features
-- Modules
-- Windows Installation
-- Documentation
-- Example Data
-- Citation
-- License
+-   Overview
+-   Main Features
+-   Why SpectroElectroChem Suite?
+-   Scientific Background
+-   Export
+-   Installation
+-   Citation
+-   License
+-   Author
 
-## Documentation
+## Main Features
 
-A complete user manual is available in docs/
+### Raman spectroscopy
 
-## Example data
+![Raman spectrum](images/raman_rubrene.png)
 
-Example CSV files are located in
+*Figure 2. Raman spectrum of solid Rubrene.*
 
-examples/
+-   Baseline correction
+-   Savitzky--Golay smoothing
+-   Peak detection
+-   Peak assignment
+-   Publication-quality plots
 
-These datasets reproduce the workflows shown in the JOSS paper.
+### Raman voltammograms
 
-## Software Overview
+![Raman voltammogram](images/raman_voltammogram.png)
 
-<p align="center">
-  <img src="docs/images/Overview.png"
-       alt="SpectroElectroChem Suite graphical overview"
-       width="900">
-</p>
+*Figure 3. Raman voltammogram of methylene blue.*
+
+-   Heat maps
+-   Contour plots
+-   Waterfall plots
+-   Interactive 3D surfaces
+-   Excel export
+
+### Absorptovoltammetry
+
+![Absorptovoltammogram](images/absorptovoltammogram.png)
+
+*Figure 4. Absorptovoltammogram of Rubrene (2D and 3D).*
+
+-   Interactive spectra
+-   Difference spectra
+-   Heat maps
+-   Waterfall plots
+-   Excel export
+
+### Fluorovoltammetry
+
+![Fluorovoltammetry](images/fluorovoltammetry.png)
+
+*Figure 5. Fluorescence measurement of Rubrene.*
+
+-   Interactive visualization
+-   Excel export
+
+### RRDE analysis
+
+![RRDE](images/rrde_analysis.png)
+
+*Figure 6. RRDE analysis module.*
+
+-   Electron-transfer number
+-   Levich analysis
+-   Koutecký--Levich analysis
+-   Tafel analysis
+-   Butler--Volmer analysis
+-   Background correction
+-   Ring-current compensation
+-   Automatic plateau diagnostics
+-   Interactive HTML plots
+-   Excel report generation
+
+## Why SpectroElectroChem Suite?
+
+SpectroElectroChem Suite integrates data import, visualization,
+quantitative evaluation and publication-ready export within a single
+graphical application for research and teaching.
+
+## Scientific Background
+
+The software implements established electrochemical methods including
+Levich analysis, Koutecký--Levich analysis, Tafel analysis,
+Butler--Volmer kinetics, baseline correction, Savitzky--Golay smoothing
+and peak detection. Evaluation parameters are documented in exported
+reports to support transparency and reproducibility.
+
+## Export
+
+Results can be exported as Excel, PNG and interactive HTML.
 
 ## Installation
 
-Clone the repository
-
-## Quick Start
-
-1. Open the Raman module.
-2. Load an example CSV.
-3. Select baseline correction.
-4. Apply smoothing.
-5. Detect peaks.
-6. Export Excel and PNG.
-## Main features
-
-- Raman spectrum analysis
-- Raman and SERS voltammograms
-- Absorptovoltammograms
-- Fluorovoltammograms
-- Interactive 3D surface plots
-- Interactive waterfall plots
-- Waterfall values exported to Excel
-- Baseline correction
-- Savitzky–Golay smoothing
-- Heatmap and contour visualization
-- Excel, HTML, PNG and PDF export
-- Plugin-ready project architecture
-- Documentation and packaging templates for Windows builds
-
-## Modules
-
-1. **Raman Spectrum Analysis**  
-   Baseline correction, smoothing, peak detection and peak assignment.
-
-2. **SERS / Raman Voltammogram**  
-   Matrix CSV input with potentials in the first row and Raman shifts in the first column. Output includes interactive surface, heatmap, contour and waterfall visualizations.
-
-3. **Absorpto- / Fluorovoltammogram**  
-   Matrix CSV input with potentials in the first row and wavelengths in the first column. Output includes Excel data, surface plots, heatmaps, contour plots and waterfall values.
-
-## Quick start on Windows
-
-1. Download the release archive from GitHub.
-2. Unzip the archive completely.
-3. Run once:
-
-```text
-Install_required_Python_packages.bat
-```
-
-4. Optional test:
-
-```text
-Test_Installation.bat
-```
-
-5. Start the program:
-
-```text
-Start_SpectroElectroChem_Suite.bat
-```
-
-## Start from source
-
-```bash
+``` bash
+git clone https://github.com/Achim-Habekost/SpectroElectroChem-Suite.git
+cd SpectroElectroChem-Suite
 pip install -r requirements.txt
 python main.py
 ```
 
-## System requirements
+Windows users may alternatively run:
 
-Recommended:
-
-- Windows 10 or Windows 11
-- Python 3.10 or newer
-
-Required Python packages are listed in `requirements.txt` and can be installed automatically with `Install_required_Python_packages.bat`.
-
-## Documentation
-
-A comprehensive user manual is available in the `docs` folder:
-
-- 📘 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.pdf)
-
-- 📝 [User Manual (Word)](docs/SpectroElectroChem_Suite_User_Manual_v4.0.1.docx)
-
-## Build Windows executable
-
-```text
-scripts\build_exe_windows.bat
+``` text
+Install_required_Python_packages.bat
 ```
-
-## Build Windows installer
-
-After the PyInstaller build, install Inno Setup and compile:
-
-```text
-installer\SpectroElectroChem_Suite_InnoSetup.iss
-```
-
-## File formats
-
-The voltammogram modules use matrix CSV files:
-
-- first row: potentials
-- first column: Raman shifts or wavelengths
-- remaining cells: intensities, absorptions or fluorescence values
 
 ## Citation
 
-If you use SpectroElectroChem Suite in scientific work, please cite the software using the Zenodo Concept DOI:
+If you use SpectroElectroChem Suite in scientific work, please cite the
+software using its permanent Zenodo Concept DOI:
 
-**Zenodo Concept DOI:** https://doi.org/10.5281/zenodo.21283231
+**DOI: [10.5281/zenodo.21283231](https://doi.org/10.5281/zenodo.21283231)**
 
-**Recommended citation:**
-
-Habekost, A. *SpectroElectroChem Suite: Software for Raman, SERS, Absorption and Fluorescence Spectro-Electrochemical Data Analysis*. Version 4.0.1. Zenodo. https://doi.org/10.5281/zenodo.21283231
-
-The latest archived software release and documentation are permanently available via Zenodo:
-
-https://doi.org/10.5281/zenodo.21283231
-
-## Support
-
-Bug reports and feature requests are welcome via the GitHub Issues page.
-
-## Acknowledgement
-
-Parts of the source code were developed with the assistance of OpenAI ChatGPT and were subsequently validated, modified and extended by the author.
+For exact reproducibility, the DOI of the specific software version used
+may additionally be cited. Citation metadata are provided in
+[`CITATION.cff`](CITATION.cff).
 
 ## License
 
-This project is distributed under the MIT License. See `LICENSE`.
+Distributed under the MIT License.
 
 ## Author
 
-Prof. Dr. Achim Habekost
+**Prof. Dr. Achim Habekost**
+
+Email: A.Habekost@t-online.de
+
+## Acknowledgement
+
+Parts of the source code were developed with the assistance of OpenAI
+ChatGPT. The scientific concepts, algorithms, validation and final
+implementation are the responsibility of the author.
+
+## Project status
+
+SpectroElectroChem Suite is actively maintained and continuously
+extended with new electrochemical and spectroelectrochemical analysis
+modules.

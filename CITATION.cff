@@ -1,26 +1,37 @@
 cff-version: 1.2.0
+message: "If you use SpectroElectroChem Suite in scientific work, please cite the software using the metadata below."
 title: "SpectroElectroChem Suite"
-message: "If you use this software, please cite it as follows."
 type: software
-
+version: "5.5.0"
+date-released: 2026-07-30
 authors:
-  - family-names: "Habekost"
-    given-names: "Achim"
-
-version: "4.0.1"
-
-doi: 10.5281/zenodo.21283232
-
-date-released: 2026-07-09
-
-license: MIT
-
+  - family-names: Habekost
+    given-names: Achim
+    email: A.Habekost@t-online.de
 repository-code: "https://github.com/Achim-Habekost/SpectroElectroChem-Suite"
-
 url: "https://github.com/Achim-Habekost/SpectroElectroChem-Suite"
-
-abstract: >
-  Open-source software for Raman spectroscopy,
-  Raman/SERS voltammetry, absorptovoltammetry,
-  fluorovoltammetry and spectro-electrochemical
-  data analysis and visualization.
+license: MIT
+keywords:
+  - spectroelectrochemistry
+  - electrochemistry
+  - Raman spectroscopy
+  - SERS
+  - absorptovoltammetry
+  - fluorovoltammetry
+  - rotating ring-disk electrode
+  - RRDE
+  - Levich analysis
+  - Koutecky-Levich analysis
+  - Tafel analysis
+  - Butler-Volmer kinetics
+abstract: >-
+  SpectroElectroChem Suite is an open-source Python application for the
+  analysis, visualization and quantitative evaluation of spectroelectrochemical
+  and rotating ring-disk electrode data. It provides graphical workflows for
+  Raman spectra, Raman and SERS voltammograms, absorption and fluorescence
+  voltammograms, and RRDE measurements, including publication-ready numerical
+  and graphical exports.
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21283231"
+    description: "Zenodo Concept DOI for all versions of SpectroElectroChem Suite"
