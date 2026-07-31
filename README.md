@@ -14,7 +14,7 @@ The complete documentation, installation guide, screenshots, and download links 
 
 ## Documentation
 
-    - 📖 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf)
+   - 📖 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf)
 - ✏️ [Editable User Manual (DOCX)](docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.docx)
 
 
