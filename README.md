@@ -14,10 +14,9 @@ The complete documentation, installation guide, screenshots, and download links 
 
 ## Documentation
 
--   User Manual (PDF):
-    `docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf`
--   Editable User Manual (DOCX):
-    `docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.docx`
+    - 📖 [User Manual (PDF)](docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf)
+- ✏️ [Editable User Manual (DOCX)](docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.docx)
+
 
 ## Main features
 
@@ -34,7 +33,6 @@ The complete documentation, installation guide, screenshots, and download links 
 -   Publication-ready Excel, PNG, PDF and HTML export
 
 ## Screenshot
-
 ![Main window](docs/images/main_window.png)
 
 ## Installation
