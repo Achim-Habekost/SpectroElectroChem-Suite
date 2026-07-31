@@ -10,7 +10,7 @@ is an open-source Python application for the analysis, visualization, and quanti
 
 https://achim-habekost.github.io/SpectroElectroChem-Suite/
 
-Complete documentation, screenshots and download links are available on the project website.
+The complete documentation, installation guide, screenshots, and download links are available on the project website.
 
 ## Documentation
 
