@@ -1,0 +1,61 @@
+# SpectroElectroChem Suite
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283232.svg)](https://doi.org/10.5281/zenodo.21283232)
+
+**SpectroElectroChem Suite** is an open-source Python application for
+the analysis, visualization and quantitative evaluation of Raman, SERS,
+absorption, fluorescence and rotating ring--disk electrode (RRDE)
+electrochemical data.
+
+## Project website
+
+https://achim-habekost.github.io/SpectroElectroChem-Suite/
+
+## Documentation
+
+-   User Manual (PDF):
+    `docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf`
+-   Editable User Manual (DOCX):
+    `docs/SpectroElectroChem_Suite_User_Manual_v5_5_0.docx`
+
+## Main features
+
+-   Raman Spectrum Analysis
+-   Raman and SERS Voltammograms
+-   Absorptovoltammetry
+-   Fluorovoltammetry
+-   RRDE Analysis
+-   Levich Analysis
+-   Koutecký--Levich Analysis
+-   Tafel Analysis
+-   Butler--Volmer Analysis
+-   Interactive 2D and 3D visualization
+-   Publication-ready Excel, PNG, PDF and HTML export
+
+## Screenshot
+
+![Main window](docs/images/main_window.png)
+
+## Installation
+
+``` bash
+git clone https://github.com/Achim-Habekost/SpectroElectroChem-Suite.git
+```
+
+See the User Manual for installation instructions.
+
+## Citation
+
+Please cite the software using the permanent Zenodo Concept DOI:
+
+**https://doi.org/10.5281/zenodo.21283232**
+
+## License
+
+MIT License.
+
+## Author
+
+**Prof. Dr. Achim Habekost**
+
+A.Habekost@t-online.de
