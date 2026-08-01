@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 set "PYTHONPATH=%~dp0src;%PYTHONPATH%"
 
-echo Starting SpectroElectroChem Suite v3.0 Final ...
+echo echo Starting SpectroElectroChem Suite ...
 echo.
 
 py main.py
