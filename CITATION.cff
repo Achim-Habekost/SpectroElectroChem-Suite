@@ -33,5 +33,6 @@ abstract: >-
   and graphical exports.
 identifiers:
   - type: doi
-    value: "https://doi.org/10.5281/zenodo.21283232"
+    value: "https://doi.org/10.5281/zenodo.21283231
+"
     description: "Zenodo Concept DOI for all versions of SpectroElectroChem Suite"
