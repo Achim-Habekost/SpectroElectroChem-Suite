@@ -3,7 +3,7 @@ message: "If you use SpectroElectroChem Suite in scientific work, please cite th
 title: "SpectroElectroChem Suite"
 type: software
 version: "5.5.1"
-date-released: 2026-07-30
+date-released: 2026-08-01
 authors:
   - family-names: Habekost
     given-names: Achim
