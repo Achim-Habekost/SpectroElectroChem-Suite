@@ -42,7 +42,7 @@ See the User Manual for installation instructions.
 
 Please cite the software using the permanent Zenodo Concept DOI:
 
-**https://doi.org/10.5281/zenodo.21283232**
+<https://doi.org/10.5281/zenodo.21283231>
 
 ## License
 
