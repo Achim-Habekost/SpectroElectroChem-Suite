@@ -1,14 +1,12 @@
 # SpectroElectroChem Suite
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283232.svg)](https://doi.org/10.5281/zenodo.21283232)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283231.svg)](https://doi.org/10.5281/zenodo.21283231)
 
 **SpectroElectroChem Suite** 
 is an open-source Python application for the analysis, visualization, and quantitative evaluation of Raman spectroscopy, SERS, absorptovoltammetry, fluorovoltammetry, and rotating ring–disk electrode (RRDE) electrochemical data.
 
 
-🌐 **Project website**
-
-https://achim-habekost.github.io/SpectroElectroChem-Suite/
+🌐 **Project website:** https://achim-habekost.github.io/SpectroElectroChem-Suite/
 
 The complete documentation, installation guide, screenshots, and download links are available on the project website.
 
