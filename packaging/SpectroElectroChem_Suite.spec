@@ -12,7 +12,7 @@ datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
 
 a = Analysis(
-    ["main.py"],
+   ["../main.py"],
     pathex=["."],
     binaries=[],
     datas=datas,
