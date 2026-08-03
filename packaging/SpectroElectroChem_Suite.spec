@@ -1,4 +1,4 @@
-# PyInstaller spec for SpectroElectroChem Suite v3.0
+# PyInstaller specification for SpectroElectroChem Suite
 
 from PyInstaller.utils.hooks import collect_data_files
 
