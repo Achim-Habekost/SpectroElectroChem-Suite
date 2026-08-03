@@ -3,10 +3,10 @@
 from PyInstaller.utils.hooks import collect_data_files
 
 datas = [
-    ("src/spectroelectrochem_suite/plugins/plugins.json", "spectroelectrochem_suite/plugins"),
-    ("docs/User_Manual.pdf", "docs"),
-    ("docs/index.html", "docs"),
-    ("run_plugin.py", "."),
+    ("../src/spectroelectrochem_suite/plugins/plugins.json", "spectroelectrochem_suite/plugins"),
+("../docs/User_Manual.pdf", "docs"),
+("../docs/index.html", "docs"),
+("../run_plugin.py", "."),
 ]
 datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
