@@ -20,6 +20,7 @@ a = Analysis(
         "spectroelectrochem_suite.modules.raman_spectrum_analysis",
         "spectroelectrochem_suite.modules.sers_raman_voltammogram",
         "spectroelectrochem_suite.modules.absorpto_fluoro_voltammogram",
+        "spectroelectrochem_suite.modules.rrde_analysis",
         "pybaselines",
         "scipy",
         "plotly",
