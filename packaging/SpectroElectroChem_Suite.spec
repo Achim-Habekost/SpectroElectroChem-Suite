@@ -13,7 +13,7 @@ datas += collect_data_files("PySide6")
 
 a = Analysis(
    ["../main.py"],
-    pathex=["."],
+   pathex=["../"],
     binaries=[],
     datas=datas,
     hiddenimports=[
