@@ -7,6 +7,7 @@ datas = [
 ("../docs/User_Manual.pdf", "docs"),
 ("../docs/index.html", "docs"),
 ("../run_plugin.py", "."),
+("../sec_logo.png", "."),
 ]
 datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
