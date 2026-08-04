@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
         central = QWidget()
         layout = QVBoxLayout(central)
         logo = QLabel()
-        logo_path = app_root() / "sec_logo.png"
+        logo_path = Path(getattr(sys, "_MEIPASS", app_root())) / "sec_logo.png"
         logo.setPixmap(QPixmap(str(logo_path)).scaledToWidth(
         260,
         Qt.TransformationMode.SmoothTransformation,
