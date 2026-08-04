@@ -26,7 +26,26 @@ The complete documentation, installation guide, screenshots, and download links 
 -   Butler--Volmer Analysis
 -   Interactive 2D and 3D visualization
 -   Publication-ready Excel, PNG, PDF and HTML export
+  
+## Features
 
+- Raman spectrum analysis
+- SERS spectrum analysis
+- Spectroelectrochemical data evaluation
+- Rotating Ring–Disk Electrode (RRDE) analysis
+- Rotating Disk Electrode (RDE) analysis
+- Levich analysis
+- Koutecký–Levich analysis
+- Tafel analysis
+- Butler–Volmer analysis
+- Exchange current density determination
+- H₂O₂ yield and electron transfer number calculation
+- ORR (oxygen reduction reaction) analysis
+- Absorptovoltammetry
+- Fluorovoltammetry
+- Interactive 2D and 3D visualization
+- Excel and HTML report generation
+  
 ## Screenshot
 ![Main window](docs/images/main_window.png)
 
