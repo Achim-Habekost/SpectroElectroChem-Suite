@@ -126,7 +126,15 @@ class MainWindow(QMainWindow):
     def create_content(self):
         central = QWidget()
         layout = QVBoxLayout(central)
-
+        logo = QLabel()
+        logo_path = app_root() / "sec_logo.png"
+        logo.setPixmap(QPixmap(str(logo_path)).scaledToWidth(
+        260,
+        Qt.TransformationMode.SmoothTransformation,
+    )
+)
+logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(logo)
         title = QLabel(APP_TITLE)
         title.setObjectName("mainTitle")
         subtitle = QLabel("Professional software for Raman, SERS, absorption and fluorescence spectro-electrochemical data.")
