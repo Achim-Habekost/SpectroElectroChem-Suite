@@ -27,8 +27,8 @@ def load_plugins():
 
 
 try:
-    from PySide6.QtCore import QUrl
-    from PySide6.QtGui import QAction, QDesktopServices
+    from PySide6.QtCore import Qt, QUrl
+    from PySide6.QtGui import QAction, QDesktopServices, QPixmap
     from PySide6.QtWidgets import (
         QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout,
         QLabel, QPushButton, QFrame, QToolBar, QStatusBar, QMessageBox,
