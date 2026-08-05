@@ -1,74 +1,87 @@
 # SpectroElectroChem Suite
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21283231.svg)](https://doi.org/10.5281/zenodo.21283231)
+**Open-source software for spectroelectrochemical data processing, visualization and quantitative electrochemical analysis**
 
-**SpectroElectroChem Suite** 
-To our knowledge, SpectroElectroChem Suite is one of the first open-source desktop applications combining Raman spectroscopy, spectroelectrochemistry, RRDE analysis, Levich/Koutecký–Levich evaluation, Tafel analysis and fluorovoltammetry within a single graphical user interface. SpectroElectroChem Suite is an open-source Python application for the analysis, visualization, and quantitative evaluation of Raman spectroscopy, SERS, absorptovoltammetry, fluorovoltammetry, and rotating ring–disk electrode (RRDE) electrochemical data.
+Designed for research, teaching and advanced electrochemical data evaluation.
 
+![Platform](https://img.shields.io/badge/platform-Windows-blue)
+![Python](https://img.shields.io/badge/Python-3.11+-green)
+![License](https://img.shields.io/badge/license-MIT-yellow)
+![Version](https://img.shields.io/badge/version-v5.5.2-red)
 
-🌐 **Project website:** https://achim-habekost.github.io/SpectroElectroChem-Suite/
+---
 
-The complete documentation, installation guide, screenshots, and download links are available on the project website.
+## Overview
 
-## Documentation
-- [📖 User Manual (PDF)](https://achim-habekost.github.io/SpectroElectroChem-Suite/SpectroElectroChem_Suite_User_Manual_v5_5_0.pdf)
-- [✏️ Editable User Manual (DOCX)](https://achim-habekost.github.io/SpectroElectroChem-Suite/SpectroElectroChem_Suite_User_Manual_v5_5_0.docx)
-## Main features
+SpectroElectroChem Suite is an open-source desktop application for the analysis, visualization and quantitative evaluation of spectroelectrochemical experiments.
 
--   Raman Spectrum Analysis
--   Raman and SERS Voltammograms
--   Absorptovoltammetry
--   Fluorovoltammetry
--   RRDE Analysis
--   Levich Analysis
--   Koutecký--Levich Analysis
--   Tafel Analysis
--   Butler--Volmer Analysis
--   Interactive 2D and 3D visualization
--   Publication-ready Excel, PNG, PDF and HTML export
-  
-## Features
+The software combines electrochemistry, Raman spectroelectrochemistry, absorption spectroelectrochemistry, fluorescence spectroelectrochemistry and rotating ring–disk electrode (RRDE) analysis within a single graphical user interface.
 
-- Raman spectrum analysis
-- SERS spectrum analysis
-- Spectroelectrochemical data evaluation
+Originally developed for scientific research, SpectroElectroChem Suite is also well suited for graduate education, teaching laboratories and advanced electrochemical data analysis.
+
+To our knowledge, SpectroElectroChem Suite is one of the first open-source desktop applications integrating Raman spectroelectrochemistry, absorptovoltammetry, fluorovoltammetry and advanced RRDE analysis within a single software environment.
+
+---
+## Why SpectroElectroChem Suite?
+
+Unlike most software packages that focus on a single analytical technique, SpectroElectroChem Suite combines multiple spectroscopic and electrochemical methods within one integrated application. This unified workflow simplifies data processing, visualization and quantitative evaluation across a broad range of spectroelectrochemical experiments.
+
+## Main Features
+
+- Stand-alone Windows application (no Python installation required)
+- Modern graphical user interface
+- Interactive Plotly visualizations
+- Publication-quality graphics
+- Automatic Excel report generation
+- PDF and PNG export
+- Comprehensive User Manual
+- Open-source (MIT License)
+
+---
+
+## Scientific Methods
+
+SpectroElectroChem Suite currently supports:
+
+- Raman spectroscopy
+- Raman voltammograms
+- Surface-enhanced Raman spectroscopy (SERS)
+- Absorptovoltammetry
+- Fluorovoltammetry
 - Rotating Ring–Disk Electrode (RRDE) analysis
-- Rotating Disk Electrode (RDE) analysis
 - Levich analysis
 - Koutecký–Levich analysis
 - Tafel analysis
 - Butler–Volmer analysis
 - Exchange current density determination
-- H₂O₂ yield and electron transfer number calculation
-- ORR (oxygen reduction reaction) analysis
-- Absorptovoltammetry
-- Fluorovoltammetry
-- Interactive 2D and 3D visualization
-- Excel and HTML report generation
-  
-## Screenshot
-![Main window](docs/images/main_window.png)
+- Standard heterogeneous rate constant determination
+- Hydrogen peroxide yield
+- Electron transfer number
 
-## Installation
+---
 
-``` bash
-git clone https://github.com/Achim-Habekost/SpectroElectroChem-Suite.git
-```
+## Availability
 
-See the User Manual for installation instructions.
+### GitHub Repository
 
-## Citation
+https://github.com/Achim-Habekost/SpectroElectroChem-Suite
 
-Please cite the software using the permanent Zenodo Concept DOI:
+### Windows Installer
 
-<https://doi.org/10.5281/zenodo.21283231>
+Download the latest Windows installer from the **Releases** section:
 
-## License
+https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases
 
-MIT License.
+### Permanent Archive (Zenodo)
 
-## Author
+The software is permanently archived on Zenodo.
 
-**Prof. Dr. Achim Habekost**
+**Concept DOI**
 
-A.Habekost@t-online.de
+https://doi.org/10.5281/zenodo.21283232
+
+### License
+
+MIT License
+
+---
