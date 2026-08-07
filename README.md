@@ -2,7 +2,7 @@
 
 **Open-source software for spectroelectrochemical data processing, visualization and quantitative electrochemical analysis**
 
-Designed for research, teaching and advanced electrochemical data evaluation.
+Designed for research, higher education, and advanced electrochemical data analysis.
 
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![Python](https://img.shields.io/badge/Python-3.11+-green)
@@ -13,7 +13,7 @@ Designed for research, teaching and advanced electrochemical data evaluation.
 
 ## Overview
 
-SpectroElectroChem Suite is an open-source desktop application for the analysis, visualization and quantitative evaluation of spectroelectrochemical experiments.
+SpectroElectroChem Suite is an open-source desktop application for the analysis, visualization, and quantitative analysis of spectroelectrochemical experiments.
 
 The software combines electrochemistry, Raman spectroelectrochemistry, absorption spectroelectrochemistry, fluorescence spectroelectrochemistry and rotating ring–disk electrode (RRDE) analysis within a single graphical user interface.
 
