@@ -1,6 +1,6 @@
 # SpectroElectroChem Suite
 
-**Version 5.5.2**
+**Version 5.5.3**
 
 Open-source desktop software for spectroelectrochemical data processing, visualization, and quantitative analysis.
 
@@ -9,7 +9,7 @@ Designed for research, higher education, and advanced electrochemical data analy
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![Python](https://img.shields.io/badge/Python-3.11+-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
-![Version](https://img.shields.io/badge/version-v5.5.2-red)
+![Version](https://img.shields.io/badge/version-v5.5.3-red)
 
 ---
 
@@ -50,6 +50,7 @@ The complete documentation is available in this repository.
 - CSV import
 - Disk/ring visualization
 - Background correction
+  Potential interpolation for background correction
 - Levich analysis
 - Koutecký–Levich analysis
 - Tafel analysis
