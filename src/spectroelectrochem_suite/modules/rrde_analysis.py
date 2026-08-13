@@ -321,24 +321,71 @@ def compensate_ring_background(
 def subtract_rrde_background_measurement(
     sample: RRDEData,
     background: RRDEData,
-) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+) -> Tuple[
+    List[np.ndarray],
+    List[np.ndarray],
+    List[np.ndarray],
+    List[np.ndarray],
+]:  
     """Subtract a complete N2/background RRDE measurement from an O2 measurement.
 
-    Disk and ring currents are matched by rotation rate and subtracted point by
-    point. To avoid mixing forward and reverse scan branches, the potential grids
-    must have the same length and agree within 1 mV.
+    Disk and ring currents are matched by rotation rate. NOVA can write slightly
+    different actual potential values even when identical scan parameters were
+    used. Therefore the background currents are linearly interpolated onto the
+    potential grid of the O2 measurement before subtraction. The number of points
+    and scan direction must still agree, which prevents accidental mixing of
+    forward and reverse scan branches.
     """
     sample_p = np.asarray(sample.potential, dtype=float)
     bg_p = np.asarray(background.potential, dtype=float)
-    if sample_p.shape != bg_p.shape or not np.allclose(sample_p, bg_p, atol=1e-3, rtol=0.0, equal_nan=True):
+    if sample_p.shape != bg_p.shape:
         raise ValueError(
-            "Die Hintergrundmessung besitzt nicht dasselbe Potentialraster wie die O2-Messung. "
-            "Bitte dieselben Scanparameter, dieselbe Punktzahl und dieselbe Scanrichtung verwenden."
+            "Die Hintergrundmessung besitzt nicht dieselbe Punktzahl wie die O2-Messung. "
+            "Bitte dieselben Scanparameter und dieselbe Scanrichtung verwenden."
+        )
+    if sample_p.size < 2 or not np.all(np.isfinite(sample_p)) or not np.all(np.isfinite(bg_p)):
+        raise ValueError("Die Potentialwerte von O2- und Hintergrundmessung müssen vollständig numerisch sein.")
+
+    sample_d = np.diff(sample_p)
+    bg_d = np.diff(bg_p)
+    sample_direction = np.sign(np.nanmedian(sample_d))
+    bg_direction = np.sign(np.nanmedian(bg_d))
+    if sample_direction == 0 or bg_direction == 0 or sample_direction != bg_direction:
+        raise ValueError(
+            "Die Hintergrundmessung besitzt nicht dieselbe Scanrichtung wie die O2-Messung. "
+            "Bitte dieselbe Scanrichtung verwenden."
+        )
+    # This routine intentionally handles one monotonic scan branch. A reversal
+    # inside either array would make a potential-only interpolation ambiguous.
+    if np.any(sample_direction * sample_d <= 0) or np.any(bg_direction * bg_d <= 0):
+        raise ValueError(
+            "Für die Untergrundinterpolation müssen O2- und Hintergrundmessung jeweils "
+            "ein monotones Potentialraster derselben Scanrichtung besitzen."
+        )
+
+    # np.interp requires an increasing x grid. Reverse descending NOVA scans.
+    if bg_direction < 0:
+        interp_x = bg_p[::-1]
+    else:
+        interp_x = bg_p
+    # Do not extrapolate beyond the measured background range. A tiny numerical
+    # tolerance is allowed at the endpoints, but the actual interpolation remains
+    # confined to measured potentials.
+    # NOVA may shift even the first/last acquired potential slightly. Allow at
+    # most half a typical potential step (minimum 2 mV) at an endpoint; np.interp
+    # then uses the nearest measured background value there instead of extrapolating.
+    typical_step = float(np.nanmedian(np.abs(bg_d)))
+    endpoint_tol = max(2e-3, 0.5 * typical_step)
+    if sample_p.min() < interp_x[0] - endpoint_tol or sample_p.max() > interp_x[-1] + endpoint_tol:
+        raise ValueError(
+            "Der Potentialbereich der Hintergrundmessung deckt den Potentialbereich der O2-Messung nicht vollständig ab."
         )
 
     bg_rot = np.asarray(background.rotations, dtype=float)
     disk_corrected: List[np.ndarray] = []
     ring_corrected: List[np.ndarray] = []
+    disk_background_interp: List[np.ndarray] = []
+    ring_background_interp: List[np.ndarray] = []
     used = set()
     for rpm, disk, ring in zip(sample.rotations, sample.disk, sample.ring):
         if bg_rot.size == 0:
@@ -354,9 +401,26 @@ def subtract_rrde_background_measurement(
         used.add(idx)
         disk_bg = np.asarray(background.disk[idx], dtype=float)
         ring_bg = np.asarray(background.ring[idx], dtype=float)
-        disk_corrected.append(np.asarray(disk, dtype=float) - disk_bg)
-        ring_corrected.append(np.asarray(ring, dtype=float) - ring_bg)
-    return disk_corrected, ring_corrected
+        if disk_bg.shape != bg_p.shape or ring_bg.shape != bg_p.shape:
+            raise ValueError("Die Hintergrundmessung enthält eine Rotationskurve mit unpassender Punktzahl.")
+        if bg_direction < 0:
+             disk_bg_interp = np.interp(sample_p, interp_x, disk_bg[::-1])
+             ring_bg_interp = np.interp(sample_p, interp_x, ring_bg[::-1])
+        else:
+             disk_bg_interp = np.interp(sample_p, interp_x, disk_bg)
+             ring_bg_interp = np.interp(sample_p, interp_x, ring_bg)
+
+        disk_background_interp.append(np.asarray(disk_bg_interp, dtype=float))
+        ring_background_interp.append(np.asarray(ring_bg_interp, dtype=float))
+  
+        disk_corrected.append(np.asarray(disk, dtype=float) - disk_bg_interp)
+        ring_corrected.append(np.asarray(ring, dtype=float) - ring_bg_interp)
+    return (
+    disk_corrected,
+    ring_corrected,
+    disk_background_interp,
+    ring_background_interp,
+)
 
 
 def make_2d_plot(
@@ -811,6 +875,8 @@ def save_excel_report(
     background_enabled: bool = False,
     background_method: str = "none",
     background_description: str = "Keine",
+    disk_background_interp: Optional[Sequence[np.ndarray]] = None,
+    ring_background_interp: Optional[Sequence[np.ndarray]] = None,
 ) -> None:
     """
     Direkter Excel-Export über XlsxWriter.
@@ -937,7 +1003,59 @@ def save_excel_report(
         disk_ws = write_wide_sheet("Disk_geglättet", disk_smooth, None, both=False)
         ring_ws = write_wide_sheet("Ring_geglättet_komp", None, ring_smooth, both=False)
 
-        # Gemeinsames Blatt in passenden Einheiten
+        if disk_background_interp is not None and ring_background_interp is not None:
+           bg_ws = workbook.add_worksheet("Untergrundkorrektur")
+           bg_ws.freeze_panes(1, 1)
+           bg_ws.set_column(0, 0, 15)
+
+           headers = ["Potential / V"]
+
+           for rpm in rotations:
+               key = format_rpm(rpm)
+               headers.extend([
+                f"Disk {key} U/min original / A",
+                f"Disk {key} U/min N2 background interpolated / A",
+                f"Disk {key} U/min corrected / A",
+                f"Disk {key} U/min smooth corrected / A",
+                f"Ring {key} U/min original / A",
+                f"Ring {key} U/min N2 background interpolated / A",
+                f"Ring {key} U/min corrected / A",
+                f"Ring {key} U/min smooth corrected / A",
+               ])
+
+               bg_ws.write_row(0, 0, headers, fmt_header)
+    	       
+               for i, e in enumerate(potential, start=1):
+                   bg_ws.write_number(i, 0, float(e), fmt_potential)
+
+               col = 1
+       	       for j in range(len(rotations)):
+                   disk_original = disk_raw[j]
+                   disk_bg = disk_background_interp[j]
+                   disk_corrected = np.asarray(disk_original, dtype=float) - np.asarray(disk_bg, dtype=float)
+                   disk_smooth_corrected = disk_smooth[j]
+
+                   ring_original = ring_raw[j]
+                   ring_bg = ring_background_interp[j]
+                   ring_corrected = np.asarray(ring_original, dtype=float) - np.asarray(ring_bg, dtype=float)
+                   ring_smooth_corrected = ring_smooth[j]
+                   series = [
+                    disk_original,
+                    disk_bg,
+                    disk_corrected,
+                    disk_smooth_corrected,
+                    ring_original,
+                    ring_bg,
+                    ring_corrected,
+                    ring_smooth_corrected,
+                           ]
+
+                   for values in series:
+                       bg_ws.write_column(1, col, [float(v) for v in values], fmt_scientific)
+                       bg_ws.set_column(col, col, 24)
+                       col += 1
+        
+# Gemeinsames Blatt in passenden Einheiten
         comb = workbook.add_worksheet("Disk_Ring_gemeinsam")
         comb.freeze_panes(1, 1)
         comb.set_column(0, 0, 15)
@@ -3416,12 +3534,17 @@ class RRDEApp(tk.Tk):
             bg_enabled = self.ring_bg_enabled_var.get()
             bg_method = self.ring_bg_method_var.get()
             background_source = None
+            disk_bg_interp_a = None
+            ring_bg_interp_a = None
+
             if bg_enabled and bg_method == "measurement_csv":
                 bg_path = Path(self.background_csv_var.get().strip())
                 if not bg_path.is_file():
                     raise ValueError("Bitte eine vorhandene CSV-Datei mit der N₂-/Hintergrundmessung auswählen.")
                 background_data = self._load_background_rrde_data(bg_path)
-                disk_raw_a, ring_raw_a = subtract_rrde_background_measurement(data, background_data)
+                disk_raw_a, ring_raw_a, disk_bg_interp_a, ring_bg_interp_a = subtract_rrde_background_measurement(
+                    data, background_data
+                )
                 background_source = bg_path
             else:
                 disk_raw_a = [v.copy() for v in disk_raw_original_a]
@@ -3684,6 +3807,8 @@ class RRDEApp(tk.Tk):
                 background_enabled=bg_enabled,
                 background_method=bg_method,
                 background_description=bg_description,
+                disk_background_interp=disk_bg_interp_a,
+                ring_background_interp=ring_bg_interp_a,
             )
 
             self.last_folder = result_folder
