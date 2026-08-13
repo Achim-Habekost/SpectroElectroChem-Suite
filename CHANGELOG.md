@@ -7,11 +7,25 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [5.5.3] - 2026-08-13
+
 ### Added
+
+- Potential-interpolated background correction using a separate N2/background RRDE measurement.
+- Excel documentation of original, interpolated background, corrected and smoothed-corrected disk and ring currents.
+- Application and installer icon support.
 
 ### Changed
 
+- Background measurements are matched to the O2 measurement by rotation rate.
+- Background currents are interpolated onto the potential grid of the O2 measurement before subtraction.
+- RRDE Excel reporting was extended with a dedicated background-correction worksheet.
+- PyInstaller and Inno Setup configurations were updated for version 5.5.3.
+
 ### Fixed
+
+- Improved handling of small potential-grid differences between O2 and N2/background measurements.
+- Added validation of point count, scan direction, potential range and rotation-rate matching for background subtraction.
 
 ## [5.5.0] - 2026-07-30
 
