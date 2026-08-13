@@ -1,32 +1,38 @@
-# PyInstaller specification for SpectroElectroChem Suite
+# PyInstaller spec for SpectroElectroChem Suite v3.0
 
-from PyInstaller.utils.hooks import collect_data_files
+from pathlib import Path
+import sys
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
+ROOT = Path(SPECPATH).resolve().parent
+SRC = ROOT / "src"
+sys.path.insert(0, str(SRC))
 
 datas = [
-    ("../src/spectroelectrochem_suite/plugins/plugins.json", "spectroelectrochem_suite/plugins"),
-("../docs/User_Manual.pdf", "docs"),
-("../docs/index.html", "docs"),
-("../run_plugin.py", "."),
-("../sec_logo.png", "."),
+    (str(ROOT / "src" / "spectroelectrochem_suite" / "plugins" / "plugins.json"),
+     "spectroelectrochem_suite/plugins"),
+    (str(ROOT / "docs" / "User_Manual.pdf"), "docs"),
+    (str(ROOT / "docs" / "index.html"), "docs"),
+    (str(ROOT / "run_plugin.py"), "."),
 ]
 datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
 
 a = Analysis(
-   ["../main.py"],
-   pathex=["../"],
+    [str(ROOT / "main.py")],
+    pathex=[str(SRC)],
     binaries=[],
     datas=datas,
-    hiddenimports=[
-        "spectroelectrochem_suite.modules.raman_spectrum_analysis",
-        "spectroelectrochem_suite.modules.sers_raman_voltammogram",
-        "spectroelectrochem_suite.modules.absorpto_fluoro_voltammogram",
-        "spectroelectrochem_suite.modules.rrde_analysis",
+    hiddenimports=
+    collect_submodules("spectroelectrochem_suite")
+    + [
         "pybaselines",
         "scipy",
         "plotly",
         "openpyxl",
         "PySide6",
+        "matplotlib.backends.backend_pdf",
+        "matplotlib.backends.backend_agg",
     ],
     hookspath=[],
     hooksconfig={},
@@ -43,6 +49,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="SpectroElectroChem_Suite",
+    icon=r"..\sec_logo.ico",
     debug=False,
     strip=False,
     upx=True,
