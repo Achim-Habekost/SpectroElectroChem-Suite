@@ -49,8 +49,7 @@ The complete documentation is available in this repository.
 ### RRDE Analysis
 - CSV import
 - Disk/ring visualization
-- Background correction
-  Potential interpolation for background correction
+- Potential-interpolated background correction using a separate N₂ measurement
 - Levich analysis
 - Koutecký–Levich analysis
 - Tafel analysis
