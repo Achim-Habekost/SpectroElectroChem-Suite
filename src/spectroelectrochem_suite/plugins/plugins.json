@@ -17,6 +17,12 @@
       "name": "Absorpto- / Fluorovoltammogram",
       "description": "Absorption and fluorescence voltammograms with Excel and HTML output.",
       "module": "spectroelectrochem_suite.modules.absorpto_fluoro_voltammogram"
+    },
+    {
+      "id": "rrde_analysis",
+      "name": "RRDE Analysis",
+      "description": "Direct CSV import, smoothing, ring-background compensation, 2D/3D visualization, Excel reports and improved start controls.",
+      "module": "spectroelectrochem_suite.modules.rrde_analysis"
     }
   ]
 }
