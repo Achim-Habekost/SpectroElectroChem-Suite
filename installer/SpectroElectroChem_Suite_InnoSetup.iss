@@ -1,7 +1,7 @@
-; Inno Setup script for SpectroElectroChem Suite v3.0
+; Inno Setup script for SpectroElectroChem Suite v6.0.0
 
 #define MyAppName "SpectroElectroChem Suite"
-#define MyAppVersion "3.0.0"
+#define MyAppVersion "6.0.0"
 #define MyAppPublisher "Achim Habekost"
 #define MyAppExeName "SpectroElectroChem_Suite.exe"
 
@@ -15,7 +15,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=..\LICENSE
 OutputDir=..\dist_installer
-OutputBaseFilename=SpectroElectroChem_Suite_Setup_v3_0
+OutputBaseFilename=SpectroElectroChem_Suite_Setup_v6_0_0
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
