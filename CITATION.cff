@@ -1,38 +1,25 @@
 cff-version: 1.2.0
-message: "If you use SpectroElectroChem Suite in scientific work, please cite the software using the metadata below."
 title: "SpectroElectroChem Suite"
+message: "If you use this software, please cite the archived release using the Zenodo DOI and this metadata."
 type: software
-version: "5.5.3"
-date-released: 2026-08-13
 authors:
   - family-names: Habekost
     given-names: Achim
-    email: A.Habekost@t-online.de
-repository-code: "https://github.com/Achim-Habekost/SpectroElectroChem-Suite"
-url: "https://achim-habekost.github.io/SpectroElectroChem-Suite/"
+version: 6.0.0
+date-released: 2026-08-31
 license: MIT
+repository-code: "https://github.com/Achim-Habekost/SpectroElectroChem-Suite"
+url: "https://achim-habekost.de"
+doi: "10.5281/zenodo.21283231"
+abstract: "Open-source software for analysis, visualization and quantitative evaluation of Raman, SERS and spectroelectrochemical data, rotating ring-disk electrode measurements, electrochemiluminescence, diffusion coefficients, electrochemical impedance spectroscopy, stripping voltammetry and electrochemical surface activation/SERS experiments."
 keywords:
   - spectroelectrochemistry
-  - electrochemistry
   - Raman spectroscopy
   - SERS
-  - absorptovoltammetry
-  - fluorovoltammetry
-  - rotating ring-disk electrode
+  - electrochemistry
   - RRDE
-  - Levich analysis
-  - Koutecky-Levich analysis
-  - Tafel analysis
-  - Butler-Volmer kinetics
-abstract: >-
-  SpectroElectroChem Suite is an open-source Python application for the
-  analysis, visualization and quantitative evaluation of spectroelectrochemical
-  and rotating ring-disk electrode data. It provides graphical workflows for
-  Raman spectra, Raman and SERS voltammograms, absorption and fluorescence
-  voltammograms, and RRDE measurements, including publication-ready numerical
-  and graphical exports.
-identifiers:
-  - type: doi
-    value: "https://doi.org/10.5281/zenodo.21283231
-"
-    description: "Zenodo Concept DOI for all versions of SpectroElectroChem Suite"
+  - electrochemiluminescence
+  - diffusion coefficient
+  - electrochemical impedance spectroscopy
+  - stripping voltammetry
+  - Python

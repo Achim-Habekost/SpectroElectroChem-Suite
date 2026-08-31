@@ -1,80 +1,56 @@
 # Changelog
 
-All notable changes to SpectroElectroChem Suite are documented in this file.
+## v6.0.0 - 2026-08-31
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and the project follows [Semantic Versioning](https://semver.org/).
+### Major release
 
-## [Unreleased]
+- Expanded SpectroElectroChem Suite to **ten analysis modules**.
+- Added **Module 5: Spectro-CV Synchronization** for cyclic voltammetry synchronized with absorption, fluorescence/ECL and Raman spectra.
+- Added **Module 6: ECL Synchronization (Integrated Signal)** with cycle averaging, integration, concentration calibration and unknown-sample evaluation.
+- Added **Module 7: Diffusion Coefficient Analysis** using Cottrell, Anson and Randles-Sevcik methods, with Nicholson kinetics and scan-rate diagnostics.
+- Added **Module 8: EIS Analysis** with Nyquist/Bode visualization, equivalent-circuit fitting, residuals and Kramers-Kronig consistency checks.
+- Added **Module 9: Stripping Voltammetry** for simultaneous SWV/DPV concentration-series analysis, calibration, LOD/LOQ-oriented output and unknown-sample determination.
+- Added **Module 10: Electrochemical Surface Activation & SERS Analysis** for Au/Ag before/after Raman comparison, apparent enhancement, peak shifts and activation-CV analysis.
+- Extended RRDE analysis with improved background correction, collection-efficiency handling, H2O2/electron-number evaluation, Levich/Koutecky-Levich, Tafel and Butler-Volmer workflows.
+- Added or refined interactive 3D plots, zoom controls, cycle means, Raman baseline processing and Excel/PNG/HTML exports across modules.
+- Updated the central plugin registry and launcher for all ten modules.
+- Updated the User Manual to version 6.0.
+- Updated repository metadata, citation information, installer/build configuration and GitHub Actions asset names for release 6.0.0.
 
-## [5.5.3] - 2026-08-13
+## v4.0.0 — First Public Release
 
-### Added
+- First official public release of SpectroElectroChem Suite.
+- Cleaned repository structure.
+- Added `.gitignore` and `.gitattributes`.
+- Removed Python cache and compiled files.
+- Updated README for publication and user installation.
+- Updated citation metadata.
+- Added release notes.
+- Raman/SERS voltammogram module includes waterfall vertical offset.
+- Raman/SERS voltammogram module exports waterfall data to Excel:
+  - `Waterfall_Shifted_Values`
+  - `Waterfall_Unshifted_Values`
+  - `Waterfall_Offsets`
+- Included Raman spectrum analysis, SERS/Raman voltammograms, absorptovoltammograms and fluorovoltammograms.
+- Included documentation and packaging templates for Windows builds.
 
-- Potential-interpolated background correction using a separate N2/background RRDE measurement.
-- Excel documentation of original, interpolated background, corrected and smoothed-corrected disk and ring currents.
-- Application and installer icon support.
+## Earlier development versions
 
-### Changed
+- Raman spectrum analysis.
+- SERS/Raman voltammogram visualization.
+- Absorpto-/fluorovoltammogram visualization.
+- Baseline correction, smoothing and Excel/HTML/PDF export.
+- Plugin-ready structure and central launcher architecture.
 
-- Background measurements are matched to the O2 measurement by rotation rate.
-- Background currents are interpolated onto the potential grid of the O2 measurement before subtraction.
-- RRDE Excel reporting was extended with a dedicated background-correction worksheet.
-- PyInstaller and Inno Setup configurations were updated for version 5.5.3.
+## v5.4.5 Preview
+- Improved diffusion-limited plateau selection wording and diagnostics.
+- Added plateau slope and relative slope to the Tafel Excel report.
+- Introduced graded plateau-drift warnings.
+- Clarified the scope of absolute cathodic disk currents in Levich/Koutecký–Levich calculations.
 
-### Fixed
-
-- Improved handling of small potential-grid differences between O2 and N2/background measurements.
-- Added validation of point count, scan direction, potential range and rotation-rate matching for background subtraction.
-
-## [5.5.0] - 2026-07-30
-
-### Added
-
-- Rotating ring–disk electrode (RRDE) analysis module.
-- Direct CSV import for paired disk and ring current data.
-- Calculation of the electron-transfer number.
-- Levich and Koutecký–Levich analyses.
-- Mass-transport-corrected kinetic current calculation.
-- Tafel analysis with Tafel slope, exchange current and exchange current density.
-- Reaction-aware Butler–Volmer evaluation.
-- Calculation of the standard heterogeneous rate constant for applicable simple redox couples.
-- Manual and measurement-based ring-background correction.
-- Plateau diagnostics based on current scatter, drift and plateau slope.
-- Structured Excel reports containing settings, results, diagnostics and warnings.
-- Interactive 2D and 3D RRDE visualizations.
-- Export of interactive plots as HTML.
-- Separate disk- and ring-current unit settings.
-- Default current display in microamperes.
-
-### Changed
-
-- Revised graphical main window integrating the RRDE module.
-- Improved scientific terminology and explanatory GUI text.
-- Improved validation of potential ranges and numerical input.
-- Reorganized and expanded exported Excel workbooks.
-- Updated project documentation for electrochemical and spectroelectrochemical workflows.
-- Updated README with screenshots and an overview of all analysis modules.
-
-### Fixed
-
-- Improved handling of CSV files containing unnamed or empty columns.
-- Improved interpolation of disk currents at selected Levich and Koutecký–Levich potentials.
-- Improved handling of cathodic-current signs in Levich and Koutecký–Levich calculations.
-- Improved warnings for insufficient data points and non-ideal diffusion-limited plateaus.
-
-## [4.0.1] - 2026-07-10
-
-### Added
-
-- Raman spectrum analysis with baseline correction, smoothing, peak detection and peak assignment.
-- Raman and SERS voltammogram analysis.
-- Absorption and fluorescence voltammogram analysis.
-- Heat maps, contour plots, waterfall plots and interactive three-dimensional visualizations.
-- Excel, PNG, PDF and HTML export.
-- User manual and example CSV templates.
-- Archived Zenodo release with version DOI 10.5281/zenodo.21283232.
-
-[Unreleased]: https://github.com/Achim-Habekost/SpectroElectroChem-Suite/compare/v5.5.0...HEAD
-[5.5.0]: https://github.com/Achim-Habekost/SpectroElectroChem-Suite/compare/v4.0.1...v5.5.0
-[4.0.1]: https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases/tag/v4.0.1
+## v5.4.6 Preview
+- Restored a clearly structured Tafel Excel Summary sheet.
+- Added formatted sections for general settings, Tafel analysis, limiting-current analysis, and warnings.
+- Added a compact limiting-current table with rotation rate, limiting current, drift, relative scatter, and plateau slope.
+- Rounded rotation rates in the summary table for improved readability.
+- Collected all quality warnings in a dedicated highlighted section.
