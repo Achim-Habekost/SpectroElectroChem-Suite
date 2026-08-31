@@ -1,11 +1,11 @@
 """
-Raman-Auswertung GUI Version 14
+Raman-Analysis GUI Version 14
 
-Diese Version basiert auf "Raman_Auswertung_V13_Referenz_0_x" und wurde so umgebaut,
-dass zu Beginn bequem eine CSV-Datei ausgewählt und der Wellenzahlbereich eingegeben wird.
+Diese Version basiert auf "Raman_Analysis_V13_Referenz_0_x" und wurde so umgebaut,
+dass zu Beginn bequem eine CSV file ausgewählt und der Wellenzahlbereich eingegeben wird.
 
 Funktionen:
-- CSV-Datei per Windows-Dialog auswählen
+- CSV file per Windows-Dialog auswählen
 - Ausgabeordner auswählen
 - Wellenzahlbereich eingeben
 - Basislinienkorrektur mit modpoly
@@ -22,7 +22,7 @@ Funktionen:
     05_Peakidentifikation
     06_Verwendete_Referenz
 - PNG- und PDF-Ausgabe des 2D-Wasserfalldiagramms
-- Kontrolle der geglätteten/basiskorrigierten Spektren
+- Kontrolle der smoothed/basiskorrigierten Spektren
 
 CSV-Struktur:
 - erste Spalte: Wellenzahlen / Raman shift
@@ -117,7 +117,7 @@ def lese_csv(dateipfad: Path):
     else:
         raise UnicodeDecodeError(
             "unknown", b"", 0, 1,
-            "Die CSV-Datei konnte nicht mit üblichen Codierungen gelesen werden."
+            "Die CSV file konnte nicht mit üblichen Codierungen gelesen werden."
         ) from last_error
 
     # Numerische Konvertierung, Dezimalkomma wird akzeptiert
@@ -130,7 +130,7 @@ def lese_csv(dateipfad: Path):
     df = df.dropna(axis=1, how="all")
 
     if df.shape[1] < 2:
-        raise ValueError("Die CSV-Datei muss mindestens zwei Spalten enthalten: Wellenzahl + Intensität.")
+        raise ValueError("Die CSV file muss mindestens zwei Spalten enthalten: Wellenzahl + Intensität.")
 
     return df, encoding_used
 
@@ -602,11 +602,13 @@ def speichere_excel_mit_bild(ausgabe_excel, ausgabe_wasserfall_png,
     wb.save(ausgabe_excel)
 
 
-class RamanAuswertungGUI:
+class RamanAnalysisGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Raman-Auswertung GUI V16 Scientific Edition")
+        self.root.title("Raman-Analysis GUI V16 Scientific Edition")
         self.root.geometry("820x760")
+        self.root.configure(bg="#f4f7fb")
+        self.configure_styles()
 
         self.csv_path = tk.StringVar()
         self.output_dir = tk.StringVar()
@@ -633,33 +635,92 @@ class RamanAuswertungGUI:
 
         self.create_widgets()
 
+
+    def configure_styles(self):
+        """Apply a restrained scientific colour scheme to Module 1."""
+        style = ttk.Style(self.root)
+        try:
+            style.theme_use("clam")
+        except tk.TclError:
+            pass
+
+        style.configure("Module1.TFrame", background="#f4f7fb")
+
+        section_styles = {
+            "Input": ("#eaf3ff", "#2f6fb0"),
+            "Range": ("#eafaf1", "#238b57"),
+            "Correction": ("#f4efff", "#7654b5"),
+            "Peak": ("#fff5e8", "#c87818"),
+            "Reference": ("#eef9f9", "#2b8585"),
+        }
+        for name, (bg, accent) in section_styles.items():
+            style.configure(
+                f"{name}.TLabelframe",
+                background=bg,
+                bordercolor=accent,
+                lightcolor=accent,
+                darkcolor=accent,
+                relief="solid",
+                borderwidth=1,
+            )
+            style.configure(
+                f"{name}.TLabelframe.Label",
+                background=bg,
+                foreground=accent,
+                font=("Segoe UI", 9, "bold"),
+            )
+
+        style.configure(
+            "Browse.TButton",
+            background="#2f80ed", foreground="white",
+            bordercolor="#2f80ed", padding=(10, 4),
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map("Browse.TButton", background=[("active", "#1f6fd1")])
+
+        style.configure(
+            "ReadRange.TButton",
+            background="#20a06b", foreground="white",
+            bordercolor="#20a06b", padding=(10, 4),
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map("ReadRange.TButton", background=[("active", "#16875a")])
+
+        style.configure(
+            "Start.TButton",
+            background="#1f9d55", foreground="white",
+            bordercolor="#1f9d55", padding=(16, 7),
+            font=("Segoe UI", 10, "bold"),
+        )
+        style.map("Start.TButton", background=[("active", "#178344")])
+
     def create_widgets(self):
         pad = {"padx": 8, "pady": 5}
 
-        frm_file = ttk.LabelFrame(self.root, text="Input and output")
+        frm_file = ttk.LabelFrame(self.root, text="Input and output", style="Input.TLabelframe")
         frm_file.pack(fill="x", **pad)
 
         ttk.Label(frm_file, text="CSV file:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm_file, textvariable=self.csv_path, width=78).grid(row=0, column=1, **pad)
-        ttk.Button(frm_file, text="Browse", command=self.browse_csv).grid(row=0, column=2, **pad)
+        ttk.Button(frm_file, text="Browse", command=self.browse_csv, style="Browse.TButton").grid(row=0, column=2, **pad)
 
         ttk.Label(frm_file, text="Output folder:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm_file, textvariable=self.output_dir, width=78).grid(row=1, column=1, **pad)
-        ttk.Button(frm_file, text="Browse", command=self.browse_output).grid(row=1, column=2, **pad)
+        ttk.Button(frm_file, text="Browse", command=self.browse_output, style="Browse.TButton").grid(row=1, column=2, **pad)
 
         ttk.Label(frm_file, text="Substance/sample name:").grid(row=2, column=0, sticky="w", **pad)
         ttk.Entry(frm_file, textvariable=self.substanzname, width=40).grid(row=2, column=1, sticky="w", **pad)
 
-        frm_range = ttk.LabelFrame(self.root, text="Wavenumber range")
+        frm_range = ttk.LabelFrame(self.root, text="Wavenumber range", style="Range.TLabelframe")
         frm_range.pack(fill="x", **pad)
 
         ttk.Label(frm_range, text="Start / cm^-1:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wn_start, width=12).grid(row=0, column=1, sticky="w", **pad)
         ttk.Label(frm_range, text="Final / cm^-1:").grid(row=0, column=2, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wn_final, width=12).grid(row=0, column=3, sticky="w", **pad)
-        ttk.Button(frm_range, text="Read CSV range", command=self.read_range_from_csv).grid(row=0, column=4, **pad)
+        ttk.Button(frm_range, text="Read CSV range", command=self.read_range_from_csv, style="ReadRange.TButton").grid(row=0, column=4, **pad)
 
-        frm_corr = ttk.LabelFrame(self.root, text="Baseline correction and smoothing")
+        frm_corr = ttk.LabelFrame(self.root, text="Baseline correction and smoothing", style="Correction.TLabelframe")
         frm_corr.pack(fill="x", **pad)
 
         ttk.Label(frm_corr, text="Baseline method:").grid(row=0, column=0, sticky="w", **pad)
@@ -681,7 +742,7 @@ class RamanAuswertungGUI:
         ttk.Label(frm_corr, text="Savitzky-Golay polynomial:").grid(row=3, column=2, sticky="w", **pad)
         ttk.Entry(frm_corr, textvariable=self.savgol_poly, width=10).grid(row=3, column=3, sticky="w", **pad)
 
-        frm_peak = ttk.LabelFrame(self.root, text="Waterfall and peak detection")
+        frm_peak = ttk.LabelFrame(self.root, text="Waterfall and peak detection", style="Peak.TLabelframe")
         frm_peak.pack(fill="x", **pad)
 
         ttk.Label(frm_peak, text="Waterfall offset:").grid(row=0, column=0, sticky="w", **pad)
@@ -697,7 +758,7 @@ class RamanAuswertungGUI:
         ttk.Label(frm_peak, text="Peak distance / points:").grid(row=1, column=2, sticky="w", **pad)
         ttk.Entry(frm_peak, textvariable=self.peak_distance, width=10).grid(row=1, column=3, sticky="w", **pad)
 
-        frm_ref = ttk.LabelFrame(self.root, text="Reference / peak assignment")
+        frm_ref = ttk.LabelFrame(self.root, text="Reference / peak assignment", style="Reference.TLabelframe")
         frm_ref.pack(fill="x", **pad)
 
         ttk.Radiobutton(frm_ref, text="No reference", variable=self.reference_mode, value="none").grid(row=0, column=0, sticky="w", **pad)
@@ -705,16 +766,16 @@ class RamanAuswertungGUI:
 
         ttk.Label(frm_ref, text="Reference file:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm_ref, textvariable=self.reference_file, width=62).grid(row=1, column=1, **pad)
-        ttk.Button(frm_ref, text="Browse", command=self.browse_reference).grid(row=1, column=2, **pad)
+        ttk.Button(frm_ref, text="Browse", command=self.browse_reference, style="Browse.TButton").grid(row=1, column=2, **pad)
 
         ttk.Label(frm_ref, text="Tolerance / cm^-1:").grid(row=2, column=0, sticky="w", **pad)
         ttk.Entry(frm_ref, textvariable=self.ident_tolerance, width=10).grid(row=2, column=1, sticky="w", **pad)
 
-        frm_run = ttk.Frame(self.root)
+        frm_run = ttk.Frame(self.root, style="Module1.TFrame")
         frm_run.pack(fill="x", **pad)
-        ttk.Button(frm_run, text="Start analysis", command=self.run_analysis).pack(side="left", padx=8, pady=10)
+        ttk.Button(frm_run, text="Start analysis", command=self.run_analysis, style="Start.TButton").pack(side="left", padx=8, pady=10)
 
-        self.log = tk.Text(self.root, height=16, wrap="word")
+        self.log = tk.Text(self.root, height=16, wrap="word", bg="#fbfcfe", fg="#243447", insertbackground="#243447", relief="solid", borderwidth=1)
         self.log.pack(fill="both", expand=True, padx=8, pady=8)
 
     def write_log(self, text):
@@ -823,7 +884,7 @@ class RamanAuswertungGUI:
             peak_distance = int(float(self.peak_distance.get().replace(",", ".")))
             identifikations_toleranz = float(self.ident_tolerance.get().replace(",", "."))
 
-            ausgabe_excel = out_dir / f"{csv.stem}_Raman_Auswertung_V16.xlsx"
+            ausgabe_excel = out_dir / f"{csv.stem}_Raman_Analysis_V16.xlsx"
             ausgabe_wasserfall_png = out_dir / f"{csv.stem}_2D_Wasserfall_V16.png"
             ausgabe_wasserfall_pdf = out_dir / f"{csv.stem}_2D_Wasserfall_V16.pdf"
             ausgabe_wasserfall_html = out_dir / f"{csv.stem}_3D_drehbarer_Wasserfall_V16.html"
@@ -1003,7 +1064,7 @@ class RamanAuswertungGUI:
 
 def main():
     root = tk.Tk()
-    app = RamanAuswertungGUI(root)
+    app = RamanAnalysisGUI(root)
     root.mainloop()
 
 

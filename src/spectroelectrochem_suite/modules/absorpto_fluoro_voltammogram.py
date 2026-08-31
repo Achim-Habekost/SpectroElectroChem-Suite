@@ -455,35 +455,50 @@ class SpectroVoltammogramGUI:
         self.create_contour = tk.BooleanVar(value=True)
         self.create_waterfall = tk.BooleanVar(value=True)
 
+        # Subtle colour coding for the functional groups.
+        style = ttk.Style(self.root)
+        for name, bg, fg in [
+            ("Input.TLabelframe", "#eaf3ff", "#174a8b"),
+            ("Range.TLabelframe", "#edf9ef", "#236b35"),
+            ("Process.TLabelframe", "#f5efff", "#633c91"),
+            ("Axis.TLabelframe", "#fff4e6", "#9a5500"),
+            ("Plots.TLabelframe", "#e9f8f7", "#126c68"),
+        ]:
+            style.configure(name, background=bg)
+            style.configure(name + ".Label", background=bg, foreground=fg, font=("Segoe UI", 9, "bold"))
+        style.configure("Browse.TButton", foreground="#174a8b")
+        style.configure("ReadRange.TButton", foreground="#236b35")
+        style.configure("Export.TButton", foreground="#0b6b3a", font=("Segoe UI", 9, "bold"))
+
         self.create_widgets()
 
     def create_widgets(self):
         pad = {"padx": 8, "pady": 5}
 
-        frm = ttk.LabelFrame(self.root, text="Input and output")
+        frm = ttk.LabelFrame(self.root, text="Input and output", style="Input.TLabelframe")
         frm.pack(fill="x", **pad)
 
         ttk.Label(frm, text="CSV file:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm, textvariable=self.csv_path, width=78).grid(row=0, column=1, **pad)
-        ttk.Button(frm, text="Browse", command=self.browse_csv).grid(row=0, column=2, **pad)
+        ttk.Button(frm, text="Browse", command=self.browse_csv, style="Browse.TButton").grid(row=0, column=2, **pad)
 
         ttk.Label(frm, text="Output folder:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm, textvariable=self.output_dir, width=78).grid(row=1, column=1, **pad)
-        ttk.Button(frm, text="Browse", command=self.browse_output).grid(row=1, column=2, **pad)
+        ttk.Button(frm, text="Browse", command=self.browse_output, style="Browse.TButton").grid(row=1, column=2, **pad)
 
         ttk.Label(frm, text="Mode:").grid(row=2, column=0, sticky="w", **pad)
         ttk.Radiobutton(frm, text="Absorptovoltammogramm", variable=self.mode, value="Absorptovoltammogramm").grid(row=2, column=1, sticky="w", **pad)
         ttk.Radiobutton(frm, text="Fluorovoltammogramm", variable=self.mode, value="Fluorovoltammogramm").grid(row=2, column=2, sticky="w", **pad)
 
-        frm_range = ttk.LabelFrame(self.root, text="Wavelength range")
+        frm_range = ttk.LabelFrame(self.root, text="Wavelength range", style="Range.TLabelframe")
         frm_range.pack(fill="x", **pad)
         ttk.Label(frm_range, text="Start / nm:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wl_start, width=12).grid(row=0, column=1, sticky="w", **pad)
         ttk.Label(frm_range, text="Final / nm:").grid(row=0, column=2, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wl_final, width=12).grid(row=0, column=3, sticky="w", **pad)
-        ttk.Button(frm_range, text="Read CSV range", command=self.read_range).grid(row=0, column=4, **pad)
+        ttk.Button(frm_range, text="Read CSV range", command=self.read_range, style="ReadRange.TButton").grid(row=0, column=4, **pad)
 
-        frm_proc = ttk.LabelFrame(self.root, text="Smoothing and scaling")
+        frm_proc = ttk.LabelFrame(self.root, text="Smoothing and scaling", style="Process.TLabelframe")
         frm_proc.pack(fill="x", **pad)
 
         ttk.Radiobutton(frm_proc, text="No smoothing", variable=self.smoothing, value="none").grid(row=0, column=0, sticky="w", **pad)
@@ -501,7 +516,7 @@ class SpectroVoltammogramGUI:
         ttk.Radiobutton(frm_proc, text="log1p", variable=self.scaling, value="log1p").grid(row=3, column=2, sticky="w", **pad)
         ttk.Radiobutton(frm_proc, text="Clip + log1p", variable=self.scaling, value="clip99_log1p").grid(row=3, column=3, sticky="w", **pad)
 
-        frm_axis = ttk.LabelFrame(self.root, text="Intensity / absorption axis")
+        frm_axis = ttk.LabelFrame(self.root, text="Intensity / absorption axis", style="Axis.TLabelframe")
         frm_axis.pack(fill="x", **pad)
         ttk.Checkbutton(frm_axis, text="Automatic axis", variable=self.auto_axis).grid(row=0, column=0, sticky="w", **pad)
         ttk.Label(frm_axis, text="Minimum:").grid(row=0, column=1, sticky="e", **pad)
@@ -512,14 +527,14 @@ class SpectroVoltammogramGUI:
         ttk.Label(frm_axis, text="Waterfall vertical offset:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm_axis, textvariable=self.waterfall_offset, width=12).grid(row=1, column=1, sticky="w", **pad)
 
-        frm_plots = ttk.LabelFrame(self.root, text="Plots")
+        frm_plots = ttk.LabelFrame(self.root, text="Plots", style="Plots.TLabelframe")
         frm_plots.pack(fill="x", **pad)
         ttk.Checkbutton(frm_plots, text="3D Surface", variable=self.create_surface).grid(row=0, column=0, sticky="w", **pad)
         ttk.Checkbutton(frm_plots, text="Heatmap", variable=self.create_heatmap).grid(row=0, column=1, sticky="w", **pad)
         ttk.Checkbutton(frm_plots, text="Contour", variable=self.create_contour).grid(row=0, column=2, sticky="w", **pad)
         ttk.Checkbutton(frm_plots, text="Waterfall", variable=self.create_waterfall).grid(row=0, column=3, sticky="w", **pad)
 
-        ttk.Button(self.root, text="Create Excel and HTML files", command=self.run).pack(padx=8, pady=10)
+        ttk.Button(self.root, text="Create Excel and HTML files", command=self.run, style="Export.TButton").pack(padx=8, pady=10)
 
         self.log = tk.Text(self.root, height=16, wrap="word")
         self.log.pack(fill="both", expand=True, padx=8, pady=8)

@@ -626,32 +626,61 @@ class RamanGUI:
         self.create_single_comparison = tk.BooleanVar(value=True)
         self.waterfall_offset = tk.StringVar(value="100")
 
+        self.configure_styles()
         self.create_widgets()
+
+    def configure_styles(self):
+        """Apply the same restrained scientific colour scheme used in Module 1."""
+        style = ttk.Style(self.root)
+        try:
+            style.theme_use("clam")
+        except tk.TclError:
+            pass
+
+        self.root.configure(bg="#f4f7fb")
+        section_styles = {
+            "Input": ("#eaf3ff", "#2f6fb0"),
+            "Range": ("#eafaf1", "#238b57"),
+            "Smoothing": ("#f4efff", "#7654b5"),
+            "Scaling": ("#fff5e8", "#c87818"),
+            "Intensity": ("#eef9f9", "#2b8585"),
+            "Plots": ("#fff0f3", "#b84f6f"),
+        }
+        for name, (bg, accent) in section_styles.items():
+            style.configure(f"{name}.TLabelframe", background=bg, bordercolor=accent, lightcolor=accent, darkcolor=accent, relief="solid", borderwidth=1)
+            style.configure(f"{name}.TLabelframe.Label", background=bg, foreground=accent, font=("Segoe UI", 9, "bold"))
+
+        style.configure("Browse.TButton", background="#2f80ed", foreground="white", bordercolor="#2f80ed", padding=(10,4), font=("Segoe UI",9,"bold"))
+        style.map("Browse.TButton", background=[("active", "#1f6fd1")])
+        style.configure("ReadRange.TButton", background="#20a06b", foreground="white", bordercolor="#20a06b", padding=(10,4), font=("Segoe UI",9,"bold"))
+        style.map("ReadRange.TButton", background=[("active", "#16875a")])
+        style.configure("Create.TButton", background="#1f9d55", foreground="white", bordercolor="#1f9d55", padding=(16,7), font=("Segoe UI",10,"bold"))
+        style.map("Create.TButton", background=[("active", "#178344")])
 
     def create_widgets(self):
         pad = {"padx": 8, "pady": 5}
 
-        frm_file = ttk.LabelFrame(self.root, text="Input and output")
+        frm_file = ttk.LabelFrame(self.root, text="Input and output", style="Input.TLabelframe")
         frm_file.pack(fill="x", **pad)
 
         ttk.Label(frm_file, text="CSV file:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm_file, textvariable=self.csv_path, width=72).grid(row=0, column=1, **pad)
-        ttk.Button(frm_file, text="Browse", command=self.browse_csv).grid(row=0, column=2, **pad)
+        ttk.Button(frm_file, text="Browse", command=self.browse_csv, style="Browse.TButton").grid(row=0, column=2, **pad)
 
         ttk.Label(frm_file, text="Output folder:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm_file, textvariable=self.output_dir, width=72).grid(row=1, column=1, **pad)
-        ttk.Button(frm_file, text="Browse", command=self.browse_output_dir).grid(row=1, column=2, **pad)
+        ttk.Button(frm_file, text="Browse", command=self.browse_output_dir, style="Browse.TButton").grid(row=1, column=2, **pad)
 
-        frm_range = ttk.LabelFrame(self.root, text="Wavenumber range")
+        frm_range = ttk.LabelFrame(self.root, text="Wavenumber range", style="Range.TLabelframe")
         frm_range.pack(fill="x", **pad)
 
         ttk.Label(frm_range, text="Start / cm^-1:").grid(row=0, column=0, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wn_start, width=16).grid(row=0, column=1, sticky="w", **pad)
         ttk.Label(frm_range, text="Final / cm^-1:").grid(row=0, column=2, sticky="w", **pad)
         ttk.Entry(frm_range, textvariable=self.wn_final, width=16).grid(row=0, column=3, sticky="w", **pad)
-        ttk.Button(frm_range, text="Read CSV range", command=self.read_range_from_csv).grid(row=0, column=4, **pad)
+        ttk.Button(frm_range, text="Read CSV range", command=self.read_range_from_csv, style="ReadRange.TButton").grid(row=0, column=4, **pad)
 
-        frm_smooth = ttk.LabelFrame(self.root, text="Spectral smoothing")
+        frm_smooth = ttk.LabelFrame(self.root, text="Spectral smoothing", style="Smoothing.TLabelframe")
         frm_smooth.pack(fill="x", **pad)
 
         ttk.Radiobutton(frm_smooth, text="No smoothing", variable=self.smoothing_method, value="none").grid(row=0, column=0, sticky="w", **pad)
@@ -665,7 +694,7 @@ class RamanGUI:
         ttk.Label(frm_smooth, text="Polynomial order:").grid(row=2, column=3, sticky="e", **pad)
         ttk.Entry(frm_smooth, textvariable=self.savgol_poly, width=8).grid(row=2, column=4, sticky="w", **pad)
 
-        frm_scaling = ttk.LabelFrame(self.root, text="Intensity scaling for plots")
+        frm_scaling = ttk.LabelFrame(self.root, text="Intensity scaling for plots", style="Scaling.TLabelframe")
         frm_scaling.pack(fill="x", **pad)
 
         ttk.Radiobutton(frm_scaling, text="Raw", variable=self.scaling, value="raw").grid(row=0, column=0, sticky="w", **pad)
@@ -673,7 +702,7 @@ class RamanGUI:
         ttk.Radiobutton(frm_scaling, text="log1p", variable=self.scaling, value="log1p").grid(row=0, column=2, sticky="w", **pad)
         ttk.Radiobutton(frm_scaling, text="Clip 99% + log1p", variable=self.scaling, value="clip99_log1p").grid(row=0, column=3, sticky="w", **pad)
 
-        frm_intensity = ttk.LabelFrame(self.root, text="Intensity axis")
+        frm_intensity = ttk.LabelFrame(self.root, text="Intensity axis", style="Intensity.TLabelframe")
         frm_intensity.pack(fill="x", **pad)
 
         ttk.Checkbutton(frm_intensity, text="Automatic intensity axis", variable=self.auto_intensity_axis).grid(row=0, column=0, sticky="w", **pad)
@@ -685,7 +714,7 @@ class RamanGUI:
         ttk.Label(frm_intensity, text="Waterfall vertical offset:").grid(row=1, column=0, sticky="w", **pad)
         ttk.Entry(frm_intensity, textvariable=self.waterfall_offset, width=12).grid(row=1, column=1, sticky="w", **pad)
 
-        frm_plots = ttk.LabelFrame(self.root, text="Plots to create")
+        frm_plots = ttk.LabelFrame(self.root, text="Plots to create", style="Plots.TLabelframe")
         frm_plots.pack(fill="x", **pad)
 
         ttk.Checkbutton(frm_plots, text="3D Surface", variable=self.create_surface).grid(row=0, column=0, sticky="w", **pad)
@@ -697,7 +726,7 @@ class RamanGUI:
 
         frm_run = ttk.Frame(self.root)
         frm_run.pack(fill="x", **pad)
-        ttk.Button(frm_run, text="Create Excel and HTML files", command=self.run_analysis).pack(side="left", padx=8, pady=10)
+        ttk.Button(frm_run, text="Create Excel and HTML files", command=self.run_analysis, style="Create.TButton").pack(side="left", padx=8, pady=10)
 
         self.log = tk.Text(self.root, height=16, wrap="word")
         self.log.pack(fill="both", expand=True, padx=8, pady=8)

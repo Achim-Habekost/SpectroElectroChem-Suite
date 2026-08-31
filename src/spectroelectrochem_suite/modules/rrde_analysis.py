@@ -321,12 +321,7 @@ def compensate_ring_background(
 def subtract_rrde_background_measurement(
     sample: RRDEData,
     background: RRDEData,
-) -> Tuple[
-    List[np.ndarray],
-    List[np.ndarray],
-    List[np.ndarray],
-    List[np.ndarray],
-]:  
+) -> Tuple[List[np.ndarray], List[np.ndarray]]:
     """Subtract a complete N2/background RRDE measurement from an O2 measurement.
 
     Disk and ring currents are matched by rotation rate. NOVA can write slightly
@@ -384,8 +379,6 @@ def subtract_rrde_background_measurement(
     bg_rot = np.asarray(background.rotations, dtype=float)
     disk_corrected: List[np.ndarray] = []
     ring_corrected: List[np.ndarray] = []
-    disk_background_interp: List[np.ndarray] = []
-    ring_background_interp: List[np.ndarray] = []
     used = set()
     for rpm, disk, ring in zip(sample.rotations, sample.disk, sample.ring):
         if bg_rot.size == 0:
@@ -404,23 +397,14 @@ def subtract_rrde_background_measurement(
         if disk_bg.shape != bg_p.shape or ring_bg.shape != bg_p.shape:
             raise ValueError("Die Hintergrundmessung enthält eine Rotationskurve mit unpassender Punktzahl.")
         if bg_direction < 0:
-             disk_bg_interp = np.interp(sample_p, interp_x, disk_bg[::-1])
-             ring_bg_interp = np.interp(sample_p, interp_x, ring_bg[::-1])
+            disk_bg_interp = np.interp(sample_p, interp_x, disk_bg[::-1])
+            ring_bg_interp = np.interp(sample_p, interp_x, ring_bg[::-1])
         else:
-             disk_bg_interp = np.interp(sample_p, interp_x, disk_bg)
-             ring_bg_interp = np.interp(sample_p, interp_x, ring_bg)
-
-        disk_background_interp.append(np.asarray(disk_bg_interp, dtype=float))
-        ring_background_interp.append(np.asarray(ring_bg_interp, dtype=float))
-  
+            disk_bg_interp = np.interp(sample_p, interp_x, disk_bg)
+            ring_bg_interp = np.interp(sample_p, interp_x, ring_bg)
         disk_corrected.append(np.asarray(disk, dtype=float) - disk_bg_interp)
         ring_corrected.append(np.asarray(ring, dtype=float) - ring_bg_interp)
-    return (
-    disk_corrected,
-    ring_corrected,
-    disk_background_interp,
-    ring_background_interp,
-)
+    return disk_corrected, ring_corrected
 
 
 def make_2d_plot(
@@ -875,8 +859,6 @@ def save_excel_report(
     background_enabled: bool = False,
     background_method: str = "none",
     background_description: str = "Keine",
-    disk_background_interp: Optional[Sequence[np.ndarray]] = None,
-    ring_background_interp: Optional[Sequence[np.ndarray]] = None,
 ) -> None:
     """
     Direkter Excel-Export über XlsxWriter.
@@ -1003,59 +985,7 @@ def save_excel_report(
         disk_ws = write_wide_sheet("Disk_geglättet", disk_smooth, None, both=False)
         ring_ws = write_wide_sheet("Ring_geglättet_komp", None, ring_smooth, both=False)
 
-        if disk_background_interp is not None and ring_background_interp is not None:
-           bg_ws = workbook.add_worksheet("Untergrundkorrektur")
-           bg_ws.freeze_panes(1, 1)
-           bg_ws.set_column(0, 0, 15)
-
-           headers = ["Potential / V"]
-
-           for rpm in rotations:
-               key = format_rpm(rpm)
-               headers.extend([
-                f"Disk {key} U/min original / A",
-                f"Disk {key} U/min N2 background interpolated / A",
-                f"Disk {key} U/min corrected / A",
-                f"Disk {key} U/min smooth corrected / A",
-                f"Ring {key} U/min original / A",
-                f"Ring {key} U/min N2 background interpolated / A",
-                f"Ring {key} U/min corrected / A",
-                f"Ring {key} U/min smooth corrected / A",
-               ])
-
-               bg_ws.write_row(0, 0, headers, fmt_header)
-    	       
-               for i, e in enumerate(potential, start=1):
-                   bg_ws.write_number(i, 0, float(e), fmt_potential)
-
-               col = 1
-       	       for j in range(len(rotations)):
-                   disk_original = disk_raw[j]
-                   disk_bg = disk_background_interp[j]
-                   disk_corrected = np.asarray(disk_original, dtype=float) - np.asarray(disk_bg, dtype=float)
-                   disk_smooth_corrected = disk_smooth[j]
-
-                   ring_original = ring_raw[j]
-                   ring_bg = ring_background_interp[j]
-                   ring_corrected = np.asarray(ring_original, dtype=float) - np.asarray(ring_bg, dtype=float)
-                   ring_smooth_corrected = ring_smooth[j]
-                   series = [
-                    disk_original,
-                    disk_bg,
-                    disk_corrected,
-                    disk_smooth_corrected,
-                    ring_original,
-                    ring_bg,
-                    ring_corrected,
-                    ring_smooth_corrected,
-                           ]
-
-                   for values in series:
-                       bg_ws.write_column(1, col, [float(v) for v in values], fmt_scientific)
-                       bg_ws.set_column(col, col, 24)
-                       col += 1
-        
-# Gemeinsames Blatt in passenden Einheiten
+        # Gemeinsames Blatt in passenden Einheiten
         comb = workbook.add_worksheet("Disk_Ring_gemeinsam")
         comb.freeze_panes(1, 1)
         comb.set_column(0, 0, 15)
@@ -2525,6 +2455,21 @@ class RRDEApp(tk.Tk):
         self.geometry("1000x830")
         self.minsize(920, 760)
 
+        # Colour-coded functional groups for faster visual orientation.
+        style = ttk.Style(self)
+        for name, bg, fg in [
+            ("Input.TLabelframe", "#eaf3ff", "#174a8b"),
+            ("Smooth.TLabelframe", "#edf9ef", "#236b35"),
+            ("Display.TLabelframe", "#f5efff", "#633c91"),
+            ("Background.TLabelframe", "#fff4e6", "#9a5500"),
+            ("Analysis.TLabelframe", "#e9f8f7", "#126c68"),
+            ("Export.TLabelframe", "#eef5ff", "#315b8a"),
+            ("Status.TLabelframe", "#f4f4f4", "#444444"),
+        ]:
+            style.configure(name, background=bg)
+            style.configure(name + ".Label", background=bg, foreground=fg, font=("Segoe UI", 9, "bold"))
+        style.configure("Primary.TButton", foreground="#08752a", font=("Segoe UI", 10, "bold"))
+
         self.csv_var = tk.StringVar()
         self.file_status_var = tk.StringVar(value="Noch keine CSV-Datei ausgewählt.")
         self.output_var = tk.StringVar()
@@ -2668,7 +2613,7 @@ class RRDEApp(tk.Tk):
             ),
         ).pack(anchor="w", pady=(0, 10))
 
-        inp = ttk.LabelFrame(main, text="Eingabe und Ausgabe", padding=10)
+        inp = ttk.LabelFrame(main, text="Eingabe und Ausgabe", padding=10, style="Input.TLabelframe")
         inp.pack(fill="x", pady=4)
         inp.columnconfigure(1, weight=1)
 
@@ -2745,7 +2690,7 @@ class RRDEApp(tk.Tk):
             text="CSV file wird direkt ohne Prüfdialog ausgewertet.",
         ).pack(anchor="w", pady=(5, 0))
 
-        smooth_box = ttk.LabelFrame(main, text="Glättung", padding=10)
+        smooth_box = ttk.LabelFrame(main, text="Glättung", padding=10, style="Smooth.TLabelframe")
         smooth_box.pack(fill="x", pady=4)
 
         ttk.Checkbutton(
@@ -2776,7 +2721,7 @@ class RRDEApp(tk.Tk):
             width=10,
         ).grid(row=1, column=3, sticky="w", padx=8)
 
-        display = ttk.LabelFrame(main, text="Darstellung", padding=10)
+        display = ttk.LabelFrame(main, text="Darstellung", padding=10, style="Display.TLabelframe")
         display.pack(fill="x", pady=4)
 
         ttk.Label(display, text="Disk current-Einheit:").grid(
@@ -2854,7 +2799,7 @@ class RRDEApp(tk.Tk):
         self.ring_factor_entry.grid(row=4, column=3, sticky="w")
 
         bg = ttk.LabelFrame(
-            main,
+            main, style="Background.TLabelframe",
             text="Untergrundkompensation",
             padding=10,
         )
@@ -2946,7 +2891,7 @@ class RRDEApp(tk.Tk):
         ).grid(row=7, column=0, columnspan=4, sticky="w", pady=(8, 0))
 
         h2o2 = ttk.LabelFrame(
-            main,
+            main, style="Analysis.TLabelframe",
             text="H₂O₂-Ausbeute und n(E)",
             padding=10,
         )
@@ -3030,7 +2975,7 @@ class RRDEApp(tk.Tk):
             wraplength=850,
         ).grid(row=6, column=0, columnspan=6, sticky="w", pady=(8, 0))
 
-        tafel = ttk.LabelFrame(main, text="Tafel analysis (aqueous systems)", padding=10)
+        tafel = ttk.LabelFrame(main, text="Tafel analysis (aqueous systems)", padding=10, style="Analysis.TLabelframe")
         tafel.pack(fill="x", pady=4)
         ttk.Checkbutton(
             tafel, text="Calculate Tafel analysis additionally",
@@ -3148,7 +3093,7 @@ class RRDEApp(tk.Tk):
         ).grid(row=14, column=0, columnspan=8, sticky="w", pady=(8, 0))
 
         lkl = ttk.LabelFrame(
-            main,
+            main, style="Analysis.TLabelframe",
             text="Levich / Koutecký–Levich (hydrodynamische Analysis)",
             padding=10,
         )
@@ -3212,7 +3157,7 @@ class RRDEApp(tk.Tk):
                   "Koutecký–Levich potentials before the regressions are calculated."),
         ).grid(row=8, column=0, columnspan=6, sticky="w", pady=(4, 0))
 
-        export = ttk.LabelFrame(main, text="Ergebnisordner", padding=10)
+        export = ttk.LabelFrame(main, text="Ergebnisordner", padding=10, style="Export.TLabelframe")
         export.pack(fill="x", pady=4)
 
         ttk.Label(
@@ -3224,7 +3169,7 @@ class RRDEApp(tk.Tk):
             wraplength=900,
         ).pack(anchor="w")
 
-        status = ttk.LabelFrame(main, text="Status", padding=8)
+        status = ttk.LabelFrame(main, text="Status", padding=8, style="Status.TLabelframe")
         status.pack(fill="x", pady=(4, 12))
 
         ttk.Label(
@@ -3534,17 +3479,12 @@ class RRDEApp(tk.Tk):
             bg_enabled = self.ring_bg_enabled_var.get()
             bg_method = self.ring_bg_method_var.get()
             background_source = None
-            disk_bg_interp_a = None
-            ring_bg_interp_a = None
-
             if bg_enabled and bg_method == "measurement_csv":
                 bg_path = Path(self.background_csv_var.get().strip())
                 if not bg_path.is_file():
                     raise ValueError("Bitte eine vorhandene CSV-Datei mit der N₂-/Hintergrundmessung auswählen.")
                 background_data = self._load_background_rrde_data(bg_path)
-                disk_raw_a, ring_raw_a, disk_bg_interp_a, ring_bg_interp_a = subtract_rrde_background_measurement(
-                    data, background_data
-                )
+                disk_raw_a, ring_raw_a = subtract_rrde_background_measurement(data, background_data)
                 background_source = bg_path
             else:
                 disk_raw_a = [v.copy() for v in disk_raw_original_a]
@@ -3807,8 +3747,6 @@ class RRDEApp(tk.Tk):
                 background_enabled=bg_enabled,
                 background_method=bg_method,
                 background_description=bg_description,
-                disk_background_interp=disk_bg_interp_a,
-                ring_background_interp=ring_bg_interp_a,
             )
 
             self.last_folder = result_folder
