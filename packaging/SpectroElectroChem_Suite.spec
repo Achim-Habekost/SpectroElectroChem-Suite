@@ -1,39 +1,42 @@
-# PyInstaller spec for SpectroElectroChem Suite v3.0
+# PyInstaller spec for SpectroElectroChem Suite v6.0.0
 
 from pathlib import Path
-import sys
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files
 
-ROOT = Path(SPECPATH).resolve().parent
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
+ROOT = Path.cwd()
 
 datas = [
-    (str(ROOT / "src" / "spectroelectrochem_suite" / "plugins" / "plugins.json"),
-     "spectroelectrochem_suite/plugins"),
-    (str(ROOT / "docs" / "User_Manual.pdf"), "docs"),
-    (str(ROOT / "docs" / "index.html"), "docs"),
-    (str(ROOT / "run_plugin.py"), "."),
+    ("src/spectroelectrochem_suite/plugins/plugins.json", "spectroelectrochem_suite/plugins"),
+    ("docs/User_Manual.pdf", "docs"),
+    ("docs/index.html", "docs"),
+    ("run_plugin.py", "."),
 ]
 datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
 
 a = Analysis(
-    [str(ROOT / "main.py")],
-    pathex=[str(SRC)],
+    ["main.py"],
+    pathex=["."],
     binaries=[],
     datas=datas,
-    hiddenimports=
-    collect_submodules("spectroelectrochem_suite")
-    + [
+    hiddenimports=[
+        "spectroelectrochem_suite.modules.raman_spectrum_analysis",
+        "spectroelectrochem_suite.modules.sers_raman_voltammogram",
+        "spectroelectrochem_suite.modules.absorpto_fluoro_voltammogram",
+        "spectroelectrochem_suite.modules.rrde_analysis",
+        "spectroelectrochem_suite.modules.spectro_cv_synchronization",
+        "spectroelectrochem_suite.modules.ecl_integrated_signal",
+        "spectroelectrochem_suite.modules.diffusion_coefficient_analysis",
+        "spectroelectrochem_suite.modules.eis_analysis",
+        "spectroelectrochem_suite.modules.stripping_voltammetry",
+        "spectroelectrochem_suite.modules.surface_activation_sers",
         "pybaselines",
         "scipy",
         "plotly",
         "openpyxl",
         "PySide6",
-        "matplotlib.backends.backend_pdf",
-        "matplotlib.backends.backend_agg",
     ],
+
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -49,7 +52,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="SpectroElectroChem_Suite",
-    icon=r"..\sec_logo.ico",
+    icon=str(ROOT / "sec_logo.ico"),
     debug=False,
     strip=False,
     upx=True,
