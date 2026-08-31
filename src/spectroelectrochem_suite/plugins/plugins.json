@@ -23,6 +23,42 @@
       "name": "RRDE Analysis",
       "description": "Direct CSV import, smoothing, ring-background compensation, 2D/3D visualization, Excel reports and improved start controls.",
       "module": "spectroelectrochem_suite.modules.rrde_analysis"
+    },
+    {
+      "id": "spectro_cv_sync",
+      "name": "Spectro-CV Synchronization",
+      "description": "Synchronized cyclic voltammetry and absorption, fluorescence and Raman spectra: Excel, PNG and interactive 3D waterfall plots.",
+      "module": "spectroelectrochem_suite.modules.spectro_cv_synchronization"
+    },
+    {
+      "id": "ecl_integrated",
+      "name": "ECL Synchronization (Integrated Signal)",
+      "description": "Synchronize CV and non-wavelength-resolved ECL signals, calculate cycle means and integrated ECL intensity, with optional coreactant concentration series.",
+      "module": "spectroelectrochem_suite.modules.ecl_integrated_signal"
+    },
+    {
+      "id": "diffusion_coefficient",
+      "name": "Diffusion Coefficient Analysis",
+      "description": "Cottrell, Anson and Randles–Ševčík analysis for diffusion-coefficient determination from chronoamperometry, chronocoulometry and CV scan-rate series.",
+      "module": "spectroelectrochem_suite.modules.diffusion_coefficient_analysis"
+    },
+    {
+      "id": "eis_analysis",
+      "name": "EIS Analysis",
+      "description": "Nyquist and Bode plots with Randles-type equivalent-circuit fitting, residuals and Excel export.",
+      "module": "spectroelectrochem_suite.modules.eis_analysis"
+    },
+    {
+      "id": "stripping_voltammetry",
+      "name": "Stripping Voltammetry",
+      "description": "SWV and DPV concentration series with interactive 3D waterfall plots, cursor-defined peak integration and calibration.",
+      "module": "spectroelectrochem_suite.modules.stripping_voltammetry"
+    },
+    {
+      "id": "surface_activation_sers",
+      "name": "Electrochemical Surface Activation & SERS Analysis",
+      "description": "Au/Ag Raman characterization before and after electrochemical activation, including apparent Raman enhancement, peak shifts and optional activation-CV analysis.",
+      "module": "spectroelectrochem_suite.modules.surface_activation_sers"
     }
   ]
 }
