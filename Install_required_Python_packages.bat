@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-echo Installing required Python packages for SpectroElectroChem Suite v3.0 Final ...
+echo Installing required Python packages for SpectroElectroChem Suite v6.0.0 ...
 echo.
 
 py -m pip install -r requirements.txt

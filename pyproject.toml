@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "spectroelectrochem-suite"
-version = "5.5.1"
-description = "Analysis software for Raman, SERS, absorption and fluorescence spectro-electrochemical data."
+version = "6.0.0"
+description = "Open-source analysis software for Raman, SERS, spectroelectrochemistry, RRDE, ECL, diffusion, EIS, stripping voltammetry and surface-activation/SERS data."
 authors = [{ name = "Achim Habekost" }]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,7 +18,8 @@ dependencies = [
   "pybaselines",
   "openpyxl",
   "plotly",
-  "PySide6"
+  "PySide6",
+  "xlsxwriter"
 ]
 
 [project.scripts]

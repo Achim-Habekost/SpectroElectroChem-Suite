@@ -1,33 +1,16 @@
-SpectroElectroChem Suite
-Version 5.5.1
+SpectroElectroChem Suite v6.0.0
 
+Recommended Windows users should use the ready-to-run executable or installer from the GitHub release.
 
-Open-source software for Raman, SERS, absorption, fluorescence and RRDE data analysis.
+Python source distribution:
 
-Please do the following:
+1. Unzip this folder completely.
+2. Double-click Install_required_Python_packages.bat (normally required only once).
+3. Double-click Test_Installation.bat.
+4. Double-click Start_SpectroElectroChem_Suite.bat.
 
-1. Extract this folder completely.
+Important: Do not start files while they are still inside the ZIP archive.
 
-2. Double-click:
-   Install_required_Python_packages.bat
-   (This only needs to be done once.)
-
-3. Double-click:
-   Test_Installation.bat
-
-4. Double-click:
-   Start_SpectroElectroChem_Suite.bat
-
-IMPORTANT
-
-Do not run any files while they are still inside the ZIP archive.
-Extract the complete folder first.
-
-Documentation:
-See the User Manual (PDF or DOCX) included in the "docs" folder.
-
-Citation:
-For general citation of the software, please use the permanent Zenodo Concept DOI:
-https://doi.org/10.5281/zenodo.21283231
-
-For citing this specific archived software release, use the version-specific DOI provided by Zenodo.
+User Manual: docs\User_Manual.pdf
+Repository: https://github.com/Achim-Habekost/SpectroElectroChem-Suite
+Concept DOI: https://doi.org/10.5281/zenodo.21283231

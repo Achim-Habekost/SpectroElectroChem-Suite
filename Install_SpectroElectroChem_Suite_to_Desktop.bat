@@ -1,13 +1,13 @@
 @echo off
 setlocal
 
-set "TARGET=%USERPROFILE%\OneDrive\Desktop\SpectroElectroChem_Suite_v3_0_Final"
+set "TARGET=%USERPROFILE%\OneDrive\Desktop\SpectroElectroChem_Suite_v6_0_0"
 
 if not exist "%USERPROFILE%\OneDrive\Desktop" (
-    set "TARGET=%USERPROFILE%\Desktop\SpectroElectroChem_Suite_v3_0_Final"
+    set "TARGET=%USERPROFILE%\Desktop\SpectroElectroChem_Suite_v6_0_0"
 )
 
-echo Installing SpectroElectroChem Suite v3.0 Final to:
+echo Installing SpectroElectroChem Suite v6.0.0 to:
 echo %TARGET%
 echo.
 

@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 set "PYTHONPATH=%~dp0src;%PYTHONPATH%"
 
-echo Starting SpectroElectroChem Suite ...
+echo Starting SpectroElectroChem Suite v6.0.0 ...
 echo.
 
 py main.py
@@ -24,4 +24,5 @@ echo     Install_required_Python_packages.bat
 echo.
 
 :end
-pause
+endlocal
+exit /b 0
