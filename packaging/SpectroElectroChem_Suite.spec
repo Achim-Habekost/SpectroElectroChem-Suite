@@ -1,4 +1,4 @@
-# PyInstaller spec for SpectroElectroChem Suite v6.0.0
+# PyInstaller spec for SpectroElectroChem Suite v6.1.0
 
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files
