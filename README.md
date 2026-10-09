@@ -1,13 +1,13 @@
-# SpectroElectroChem Suite v6.0.0
+# SpectroElectroChem Suite v6.1.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![GitHub release](https://img.shields.io/badge/release-v6.0.0-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
+[![GitHub release](https://img.shields.io/badge/release-v6.1.0-blue.svg)](https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21283231-blue.svg)](https://doi.org/10.5281/zenodo.21283231)
 
 **SpectroElectroChem Suite** is open-source scientific software for the analysis, visualization and quantitative evaluation of spectroscopic, spectroelectrochemical and electrochemical data.
 
-Version 6.0.0 contains **ten analysis modules** and adds the new **Electrochemical Surface Activation & SERS Analysis** workflow.
+Version 6.1.0 contains **ten analysis modules** and adds the new **Electrochemical Surface Activation & SERS Analysis** workflow.
 
 ## Analysis modules
 
@@ -97,7 +97,7 @@ If you use the suite in scientific work, please cite the archived software relea
 
 Suggested form:
 
-> Habekost, A. *SpectroElectroChem Suite*, version 6.0.0. GitHub/Zenodo, 2026. https://doi.org/10.5281/zenodo.21283231
+> Habekost, A. *SpectroElectroChem Suite*, version 6.1.0. GitHub/Zenodo, 2026. https://doi.org/10.5281/zenodo.21283231
 
 ## Scientific note on Module 10
 
