@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.1.0 - 2026-10-09
+
+### Improvements
+- Improved Module 2 (SERS / Raman Voltammogram) with refinements to waterfall plot presentation.
+- Improved alignment and positioning of waterfall plot labels.
+- Updated package version and citation metadata to v6.1.0.
+- Updated PyInstaller and Inno Setup configuration for v6.1.0.
+- Retained all ten electrochemical and spectroscopic analysis modules.
+
 ## v6.0.0 - 2026-08-31
 
 ### Major release
