@@ -27,8 +27,8 @@ def load_plugins():
 
 
 try:
-    from PySide6.QtCore import Qt, QUrl
-    from PySide6.QtGui import QAction, QDesktopServices, QPixmap
+    from PySide6.QtCore import QUrl
+    from PySide6.QtGui import QAction, QDesktopServices
     from PySide6.QtWidgets import (
         QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout,
         QLabel, QPushButton, QFrame, QToolBar, QStatusBar, QMessageBox,
@@ -122,24 +122,14 @@ class MainWindow(QMainWindow):
             act = QAction(plugin["name"], self)
             act.triggered.connect(lambda checked=False, p=plugin: start_plugin(p["id"]))
             toolbar.addAction(act)
+
     def create_content(self):
         central = QWidget()
         layout = QVBoxLayout(central)
 
-        logo = QLabel()
-        logo_path = Path(getattr(sys, "_MEIPASS", app_root())) / "sec_logo.png"
-        logo.setPixmap(
-            QPixmap(str(logo_path)).scaledToWidth(
-                260,
-                Qt.TransformationMode.SmoothTransformation,
-            )
-        )
-        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(logo)
-
         title = QLabel(APP_TITLE)
         title.setObjectName("mainTitle")
-        subtitle = QLabel("Professional software for Raman, SERS, absorption and fluorescence spectro-electrochemical data.")
+        subtitle = QLabel("Ten-module platform for spectroelectrochemistry and electrochemical analysis: Raman, SERS, absorption, fluorescence, RRDE, synchronization, diffusion, EIS, stripping voltammetry and electrochemical Au/Ag surface activation.")
         subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
 
@@ -155,9 +145,8 @@ class MainWindow(QMainWindow):
         info.setReadOnly(True)
         info.setMaximumHeight(140)
         info.setText(
-            "Version 3.0 introduces a modern Qt/PySide6 main window, a plugin-ready architecture, "
-            "project-folder creation, installer configuration, GitHub Actions, and documentation. "
-            "The established scientific analysis modules are preserved."
+            f"Version {self.version} includes ten scientific analysis modules. "
+            "Module 10 compares Raman spectra of Au and Ag surfaces before and after electrochemical activation and quantifies apparent Raman enhancement and peak shifts."
         )
         layout.addWidget(info)
         self.setCentralWidget(central)

@@ -8,9 +8,9 @@ from urllib.error import URLError, HTTPError
 from . import __version__
 
 
-# Replace this URL after creating the GitHub repository.
-GITHUB_RELEASES_API = "https://api.github.com/repos/YOUR_GITHUB_NAME/SpectroElectroChem-Suite/releases/latest"
-GITHUB_RELEASES_PAGE = "https://github.com/YOUR_GITHUB_NAME/SpectroElectroChem-Suite/releases"
+# Official GitHub release endpoints.
+GITHUB_RELEASES_API = "https://api.github.com/repos/Achim-Habekost/SpectroElectroChem-Suite/releases/latest"
+GITHUB_RELEASES_PAGE = "https://github.com/Achim-Habekost/SpectroElectroChem-Suite/releases"
 
 
 def get_latest_release(timeout: int = 5):

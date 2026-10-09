@@ -52,7 +52,7 @@ def open_local_manual():
 
 
 def open_online_help():
-    webbrowser.open("https://github.com/YOUR_GITHUB_NAME/SpectroElectroChem-Suite")
+    webbrowser.open("https://github.com/Achim-Habekost/SpectroElectroChem-Suite")
 
 
 class SpectroElectroChemApp:

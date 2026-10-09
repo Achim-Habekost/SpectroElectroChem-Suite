@@ -1,5 +1,5 @@
 """
-SERS/Raman Voltammogram GUI v4.2.1
+SERS/Raman Voltammogram GUI v4.3.1
 
 A small Windows desktop program for Raman/SERS voltammogram data.
 
@@ -23,7 +23,7 @@ Main features:
     - raw vs smoothed comparison waterfall
 
 Required packages:
-    py -m pip install pandas numpy plotly openpyxl scipy
+    py -m pip install pandas numpy plotly openpyxl scipy matplotlib
 """
 
 from pathlib import Path
@@ -188,6 +188,35 @@ def savitzky_golay_smoothing(intensities, window_length=11, polyorder=3):
         axis=0,
         mode="interp"
     )
+
+
+def asymmetric_least_squares_baseline(intensities, lam=100000.0, p=0.001, niter=10):
+    """Estimate ALS baselines column-wise and return (baseline, corrected)."""
+    ensure_package("scipy", "scipy")
+    from scipy import sparse
+    from scipy.sparse.linalg import spsolve
+
+    ymat = np.asarray(intensities, dtype=float)
+    n = ymat.shape[0]
+    if n < 3:
+        baseline = np.zeros_like(ymat)
+        return baseline, ymat.copy()
+
+    D = sparse.diags([1.0, -2.0, 1.0], [0, 1, 2], shape=(n - 2, n), format="csc")
+    penalty = float(lam) * (D.T @ D)
+    baseline = np.empty_like(ymat)
+
+    for j in range(ymat.shape[1]):
+        y = ymat[:, j]
+        w = np.ones(n, dtype=float)
+        z = y.copy()
+        for _ in range(int(niter)):
+            W = sparse.spdiags(w, 0, n, n)
+            z = spsolve(W + penalty, w * y)
+            w = np.where(y > z, float(p), 1.0 - float(p))
+        baseline[:, j] = z
+
+    return baseline, ymat - baseline
 
 
 def scale_intensity(intensities, scaling_mode):
@@ -486,6 +515,66 @@ def plot_waterfall(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_st
     return fig, html_path
 
 
+def plot_waterfall_2d(go, csv_path, out_dir, potentials, wavenumbers, values,
+                      wn_start, wn_final, suffix, vertical_offset):
+    """2D waterfall: potential labels aligned to their individual spectral baselines."""
+    ensure_package("matplotlib", "matplotlib")
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.transforms import blended_transform_factory
+
+    n = len(potentials)
+    indices = np.arange(n) if n <= 120 else np.unique(np.linspace(0, n - 1, 120, dtype=int))
+    x = np.asarray(wavenumbers, dtype=float)
+    traces = []
+    for i in indices:
+        y = np.asarray(values[:, i], dtype=float)
+        baseline = (n - 1 - i) * vertical_offset
+        shifted = y - np.nanmin(y) + baseline
+        traces.append((i, shifted, baseline))
+
+    base = (f"{csv_path.stem}_wavenumber_{safe_name_number(wn_start)}_to_"
+            f"{safe_name_number(wn_final)}_waterfall_2d_{suffix}")
+    html_path = out_dir / (base + ".html")
+    png_path = out_dir / (base + ".png")
+
+    fig = go.Figure()
+    annotations = []
+    for i, y, baseline in traces:
+        label = f"{potentials[i]:.4f} V"
+        fig.add_trace(go.Scatter(
+            x=x, y=y, mode="lines", name=label, showlegend=False,
+            hovertemplate=(f"Potential: {label}<br>"
+                           "Wavenumber: %{x:.1f} cm^-1<br>Shifted intensity: %{y:.3g}<extra></extra>")))
+        annotations.append(dict(x=1.012, xref="paper", y=float(baseline + 0.12 * vertical_offset),
+                                yref="y", text=label, showarrow=False, xanchor="left",
+                                yanchor="middle", font=dict(size=10)))
+    fig.update_layout(title="2D Raman/SERS waterfall", xaxis_title="Raman shift / cm^-1",
+                      yaxis_title="Vertically offset Raman intensity / a.u.",
+                      width=1150, height=760, template="plotly_white", annotations=annotations,
+                      margin=dict(l=85, r=160, t=75, b=75))
+    fig.write_html(html_path, include_plotlyjs="cdn")
+
+    fig_png, ax = plt.subplots(figsize=(12, 7))
+    color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    text_transform = blended_transform_factory(ax.transAxes, ax.transData)
+    for j, (i, y, baseline) in enumerate(traces):
+        color = color_cycle[j % len(color_cycle)]
+        ax.plot(x, y, linewidth=1.0, color=color)
+        ax.text(1.015, baseline + 0.12 * vertical_offset, f"{potentials[i]:.4f} V",
+                transform=text_transform, va="center", ha="left", fontsize=7, color=color,
+                clip_on=False)
+    ax.set(xlabel="Raman shift / cm$^{-1}$",
+           ylabel="Vertically offset Raman intensity / a.u.",
+           title="2D Raman/SERS waterfall")
+    ax.set_xlim(float(np.nanmin(x)), float(np.nanmax(x)))
+    fig_png.subplots_adjust(left=0.09, right=0.79, bottom=0.11, top=0.92)
+    fig_png.savefig(png_path, dpi=300)
+    plt.close(fig_png)
+    return html_path, png_path
+
+
 def plot_comparison_waterfall(go, csv_path, out_dir, potentials, wavenumbers,
                               raw_intensities, smoothed_intensities,
                               wn_start, wn_final, smooth_suffix, z_range=None, *args, **kwargs):
@@ -595,11 +684,24 @@ def plot_middle_spectrum_comparison(go, csv_path, out_dir, potentials, wavenumbe
     return fig, html_path
 
 
+def plot_baseline_comparison(go, csv_path, out_dir, potentials, wavenumbers, raw_intensities, baseline, corrected, wn_start, wn_final, baseline_suffix):
+    idx = len(potentials) // 2
+    pot = potentials[idx]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=wavenumbers, y=raw_intensities[:, idx], mode="lines", name="Raw spectrum"))
+    fig.add_trace(go.Scatter(x=wavenumbers, y=baseline[:, idx], mode="lines", name="Estimated baseline"))
+    fig.add_trace(go.Scatter(x=wavenumbers, y=corrected[:, idx], mode="lines", name="Baseline-corrected spectrum"))
+    fig.update_layout(title=f"Raw vs Baseline-Corrected Raman Spectrum at {pot:g} V", xaxis=wavenumber_axis_settings(wn_start, wn_final), yaxis_title="Raman intensity / a.u.", width=1050, height=650, margin=dict(l=70, r=30, b=60, t=70))
+    html_path = out_dir / f"{csv_path.stem}_wavenumber_{safe_name_number(wn_start)}_to_{safe_name_number(wn_final)}_raw_vs_baseline_{baseline_suffix}.html"
+    fig.write_html(html_path, include_plotlyjs="cdn")
+    return fig, html_path
+
+
 class RamanGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("SERS/Raman Voltammogram GUI v4.2.1")
-        self.root.geometry("760x720")
+        self.root.title("SERS/Raman Voltammogram GUI v4.3.1")
+        self.root.geometry("900x850")
 
         self.csv_path = tk.StringVar()
         self.output_dir = tk.StringVar()
@@ -612,6 +714,11 @@ class RamanGUI:
         self.savgol_poly = tk.StringVar(value="3")
         self.moving_average_window = tk.StringVar(value="7")
 
+        self.baseline_method = tk.StringVar(value="none")
+        self.als_lambda = tk.StringVar(value="100000")
+        self.als_p = tk.StringVar(value="0.001")
+        self.als_iterations = tk.StringVar(value="10")
+
         self.scaling = tk.StringVar(value="raw")
 
         self.auto_intensity_axis = tk.BooleanVar(value=True)
@@ -622,8 +729,10 @@ class RamanGUI:
         self.create_heatmap = tk.BooleanVar(value=True)
         self.create_contour = tk.BooleanVar(value=True)
         self.create_waterfall = tk.BooleanVar(value=True)
+        self.create_waterfall_2d = tk.BooleanVar(value=True)
         self.create_comparison = tk.BooleanVar(value=True)
         self.create_single_comparison = tk.BooleanVar(value=True)
+        self.create_baseline_comparison = tk.BooleanVar(value=True)
         self.waterfall_offset = tk.StringVar(value="100")
 
         self.configure_styles()
@@ -642,6 +751,7 @@ class RamanGUI:
             "Input": ("#eaf3ff", "#2f6fb0"),
             "Range": ("#eafaf1", "#238b57"),
             "Smoothing": ("#f4efff", "#7654b5"),
+            "Baseline": ("#f3f8e9", "#6f8f2f"),
             "Scaling": ("#fff5e8", "#c87818"),
             "Intensity": ("#eef9f9", "#2b8585"),
             "Plots": ("#fff0f3", "#b84f6f"),
@@ -694,6 +804,18 @@ class RamanGUI:
         ttk.Label(frm_smooth, text="Polynomial order:").grid(row=2, column=3, sticky="e", **pad)
         ttk.Entry(frm_smooth, textvariable=self.savgol_poly, width=8).grid(row=2, column=4, sticky="w", **pad)
 
+        frm_baseline = ttk.LabelFrame(self.root, text="Baseline / background correction", style="Baseline.TLabelframe")
+        frm_baseline.pack(fill="x", **pad)
+
+        ttk.Radiobutton(frm_baseline, text="No baseline correction", variable=self.baseline_method, value="none").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Radiobutton(frm_baseline, text="Asymmetric Least Squares (AsLS/ALS)", variable=self.baseline_method, value="als").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="lambda:").grid(row=1, column=1, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_lambda, width=10).grid(row=1, column=2, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="p:").grid(row=1, column=3, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_p, width=8).grid(row=1, column=4, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="Iterations:").grid(row=1, column=5, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_iterations, width=6).grid(row=1, column=6, sticky="w", **pad)
+
         frm_scaling = ttk.LabelFrame(self.root, text="Intensity scaling for plots", style="Scaling.TLabelframe")
         frm_scaling.pack(fill="x", **pad)
 
@@ -723,10 +845,13 @@ class RamanGUI:
         ttk.Checkbutton(frm_plots, text="Waterfall", variable=self.create_waterfall).grid(row=0, column=3, sticky="w", **pad)
         ttk.Checkbutton(frm_plots, text="Raw vs smoothed waterfall", variable=self.create_comparison).grid(row=0, column=4, sticky="w", **pad)
         ttk.Checkbutton(frm_plots, text="Raw vs smoothed single spectrum", variable=self.create_single_comparison).grid(row=1, column=0, sticky="w", **pad)
+        ttk.Checkbutton(frm_plots, text="Raw vs baseline-corrected single spectrum", variable=self.create_baseline_comparison).grid(row=1, column=1, sticky="w", **pad)
+
+        ttk.Checkbutton(frm_plots, text="2D Waterfall (HTML + PNG)", variable=self.create_waterfall_2d).grid(row=2, column=0, sticky="w", **pad)
 
         frm_run = ttk.Frame(self.root)
         frm_run.pack(fill="x", **pad)
-        ttk.Button(frm_run, text="Create Excel and HTML files", command=self.run_analysis, style="Create.TButton").pack(side="left", padx=8, pady=10)
+        ttk.Button(frm_run, text="Create Excel, HTML and PNG files", command=self.run_analysis, style="Create.TButton").pack(side="left", padx=8, pady=10)
 
         self.log = tk.Text(self.root, height=16, wrap="word")
         self.log.pack(fill="both", expand=True, padx=8, pady=8)
@@ -784,6 +909,23 @@ class RamanGUI:
         poly = int(self.savgol_poly.get())
         return savitzky_golay_smoothing(raw, window, poly), f"Savitzky-Golay smoothing, {window} points, polynomial order {poly}", f"savgol{window}p{poly}"
 
+    def apply_baseline_correction(self, raw):
+        method = self.baseline_method.get()
+        if method == "none":
+            return np.zeros_like(raw), raw.copy(), "No baseline correction", "nobaseline"
+
+        lam = float(self.als_lambda.get().replace(",", "."))
+        p = float(self.als_p.get().replace(",", "."))
+        niter = int(self.als_iterations.get())
+        if lam <= 0:
+            raise ValueError("ALS lambda must be > 0.")
+        if not 0 < p < 1:
+            raise ValueError("ALS p must be between 0 and 1.")
+        if niter < 1:
+            raise ValueError("ALS iterations must be >= 1.")
+        baseline, corrected = asymmetric_least_squares_baseline(raw, lam, p, niter)
+        return baseline, corrected, f"ALS baseline correction, lambda={lam:g}, p={p:g}, iterations={niter}", f"als_lam{lam:g}_p{p:g}_n{niter}"
+
     def run_analysis(self):
         try:
             csv = Path(self.csv_path.get().strip().strip('"'))
@@ -811,8 +953,12 @@ class RamanGUI:
             wavenumbers_selected = wavenumbers[mask]
             raw_selected = intensities[mask, :]
 
+            self.write_log("Applying baseline/background correction ...")
+            baseline, corrected, baseline_description, baseline_suffix = self.apply_baseline_correction(raw_selected)
+            self.write_log(f"Baseline: {baseline_description}")
+
             self.write_log("Applying smoothing ...")
-            smoothed, smoothing_description, smooth_suffix = self.apply_smoothing(raw_selected)
+            smoothed, smoothing_description, smooth_suffix = self.apply_smoothing(corrected)
             self.write_log(f"Smoothing: {smoothing_description}")
 
             z_plot, z_label, scaling_suffix = scale_intensity(smoothed, self.scaling.get())
@@ -855,42 +1001,58 @@ class RamanGUI:
                 self.write_log("Creating 3D surface ...")
                 created.append(("3D Surface", *plot_surface(
                     go, csv, out_dir, potentials, wavenumbers_selected, z_plot,
-                    wn_start, wn_final, scaling_suffix, z_label, smooth_suffix, z_range, waterfall_offset
+                    wn_start, wn_final, scaling_suffix, z_label, f"{baseline_suffix}_{smooth_suffix}", z_range, waterfall_offset
                 )))
 
             if self.create_heatmap.get():
                 self.write_log("Creating heatmap ...")
                 created.append(("Heatmap", *plot_heatmap(
                     go, csv, out_dir, potentials, wavenumbers_selected, z_plot,
-                    wn_start, wn_final, scaling_suffix, z_label, smooth_suffix, z_range
+                    wn_start, wn_final, scaling_suffix, z_label, f"{baseline_suffix}_{smooth_suffix}", z_range
                 )))
 
             if self.create_contour.get():
                 self.write_log("Creating contour plot ...")
                 created.append(("Contour", *plot_contour(
                     go, csv, out_dir, potentials, wavenumbers_selected, z_plot,
-                    wn_start, wn_final, scaling_suffix, z_label, smooth_suffix, z_range
+                    wn_start, wn_final, scaling_suffix, z_label, f"{baseline_suffix}_{smooth_suffix}", z_range
                 )))
 
             if self.create_waterfall.get():
                 self.write_log("Creating waterfall plot ...")
                 created.append(("Waterfall", *plot_waterfall(
                     go, csv, out_dir, potentials, wavenumbers_selected, z_plot,
-                    wn_start, wn_final, scaling_suffix, z_label, smooth_suffix, z_range
+                    wn_start, wn_final, scaling_suffix, z_label, f"{baseline_suffix}_{smooth_suffix}", z_range
                 )))
+
+            if self.create_waterfall_2d.get():
+                self.write_log("Creating 2D waterfall (HTML + PNG) ...")
+                html_2d, png_2d = plot_waterfall_2d(
+                    go, csv, out_dir, potentials, wavenumbers_selected, z_plot,
+                    wn_start, wn_final, f"{baseline_suffix}_{smooth_suffix}_{scaling_suffix}",
+                    waterfall_offset)
+                self.write_log(f"2D Waterfall HTML: {html_2d}")
+                self.write_log(f"2D Waterfall PNG: {png_2d}")
 
             if self.create_comparison.get():
                 self.write_log("Creating raw-vs-smoothed waterfall plot ...")
                 created.append(("Raw vs Smoothed Waterfall", *plot_comparison_waterfall(
                     go, csv, out_dir, potentials, wavenumbers_selected,
-                    raw_selected, smoothed, wn_start, wn_final, smooth_suffix, z_range
+                    raw_selected, smoothed, wn_start, wn_final, f"{baseline_suffix}_{smooth_suffix}", z_range
                 )))
 
             if self.create_single_comparison.get():
                 self.write_log("Creating raw-vs-smoothed single-spectrum control plot ...")
                 created.append(("Raw vs Smoothed Single Spectrum", *plot_middle_spectrum_comparison(
                     go, csv, out_dir, potentials, wavenumbers_selected,
-                    raw_selected, smoothed, wn_start, wn_final, smooth_suffix, z_range
+                    raw_selected, smoothed, wn_start, wn_final, f"{baseline_suffix}_{smooth_suffix}", z_range
+                )))
+
+            if self.create_baseline_comparison.get() and self.baseline_method.get() != "none":
+                self.write_log("Creating raw-vs-baseline-corrected single-spectrum control plot ...")
+                created.append(("Raw vs Baseline-Corrected Single Spectrum", *plot_baseline_comparison(
+                    go, csv, out_dir, potentials, wavenumbers_selected, raw_selected, baseline, corrected,
+                    wn_start, wn_final, baseline_suffix
                 )))
 
             for name, fig, path in created:
