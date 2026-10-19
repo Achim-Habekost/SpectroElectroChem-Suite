@@ -9,6 +9,12 @@
 
 Version 6.1.0 contains **ten analysis modules** and adds the new **Electrochemical Surface Activation & SERS Analysis** workflow.
 
+## Video Introduction
+
+Watch the introduction to SpectroElectroChem Suite and its ten analysis modules.
+
+[▶ Watch the SpectroElectroChem Suite introduction on YouTube](https://youtu.be/DIq1uAknjss)
+
 ## Analysis modules
 
 1. **Raman Spectrum Analysis**  
