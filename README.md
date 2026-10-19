@@ -13,7 +13,7 @@ Version 6.1.0 contains **ten analysis modules** and adds the new **Electrochemic
 
 Watch the introduction to SpectroElectroChem Suite and its ten analysis modules.
 
-[▶ Watch the SpectroElectroChem Suite introduction on YouTube](https://youtu.be/DIq1uAknjss)
+[![Watch the SpectroElectroChem Suite introduction](https://img.youtube.com/vi/DIq1uAknjss/hqdefault.jpg)](https://www.youtube.com/watch?v=DIq1uAknjss)
 
 ## Analysis modules
 
