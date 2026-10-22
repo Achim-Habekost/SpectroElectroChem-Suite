@@ -16,10 +16,14 @@ def app_root() -> Path:
 
 
 def start_plugin(plugin_id: str) -> None:
-    runner = app_root() / "run_plugin.py"
-    creationflags = subprocess.CREATE_NEW_CONSOLE if sys.platform.startswith("win") else 0
-    subprocess.Popen([sys.executable, str(runner), plugin_id], cwd=str(app_root()), creationflags=creationflags)
+    if getattr(sys, "frozen", False):
+        command = [sys.executable, "--plugin", plugin_id]
+    else:
+        runner = app_root() / "run_plugin.py"
+        command = [sys.executable, str(runner), plugin_id]
 
+    creationflags = subprocess.CREATE_NEW_CONSOLE if sys.platform.startswith("win") else 0
+    subprocess.Popen(command, cwd=str(app_root()), creationflags=creationflags)
 
 def load_plugins():
     path = Path(__file__).resolve().parent / "plugins" / "plugins.json"
