@@ -70,7 +70,7 @@ def load_numeric_table(path: str | Path) -> pd.DataFrame:
     path = Path(path)
     sep = _detect_delimiter(path)
     raw = pd.read_csv(path, sep=sep, header=None, dtype=str, engine="python")
-    num = raw.map(_float)
+    num = raw.applymap(_float)
     # remove empty rows/columns
     num = num.loc[num.notna().any(axis=1), num.notna().any(axis=0)]
     if num.empty:
@@ -248,8 +248,7 @@ def safe_ratio(a, b):
 
 def positive_area(x, y):
     yp = np.clip(np.asarray(y, float), 0, None)
-    return float(np.trapezoid(yp, x))
-
+    return float(np.trapz(yp, x))
 
 def activation_charge(e, currents, scan_rate):
     """

@@ -79,7 +79,7 @@ def read_voltammogram_csv(path: Path):
     else:
         raise UnicodeDecodeError("unknown", b"", 0, 1, "Could not decode CSV file.") from last_error
 
-    df = df.map(safe_float)
+    df = df.applymap(safe_float)
     df = df.dropna(how="all").dropna(axis=1, how="all")
 
     potentials = df.iloc[0, 1:].to_numpy(dtype=float)
@@ -94,9 +94,7 @@ def read_voltammogram_csv(path: Path):
     values = values[valid_wl, :][:, valid_pot]
 
     # Sort axes
-    pot_order = np.argsort(potentials)
-    potentials = potentials[pot_order]
-    values = values[:, pot_order]
+    # Preserve acquisition order for forward and reverse potential scans.
 
     wl_order = np.argsort(wavelengths)
     wavelengths = wavelengths[wl_order]
@@ -134,6 +132,35 @@ def savgol_smooth(values, window=11, poly=3):
     if window < 5 or window > n or window <= poly:
         return values.copy()
     return savgol_filter(values, window_length=window, polyorder=poly, axis=0, mode="interp")
+
+
+def asymmetric_least_squares_baseline(intensities, lam=100000.0, p=0.001, niter=10):
+    """Estimate ALS baselines column-wise and return (baseline, corrected)."""
+    ensure_package("scipy", "scipy")
+    from scipy import sparse
+    from scipy.sparse.linalg import spsolve
+
+    ymat = np.asarray(intensities, dtype=float)
+    n = ymat.shape[0]
+    if n < 3:
+        baseline = np.zeros_like(ymat)
+        return baseline, ymat.copy()
+
+    D = sparse.diags([1.0, -2.0, 1.0], [0, 1, 2], shape=(n - 2, n), format="csc")
+    penalty = float(lam) * (D.T @ D)
+    baseline = np.empty_like(ymat)
+
+    for j in range(ymat.shape[1]):
+        y = ymat[:, j]
+        w = np.ones(n, dtype=float)
+        z = y.copy()
+        for _ in range(int(niter)):
+            W = sparse.spdiags(w, 0, n, n)
+            z = spsolve(W + penalty, w * y)
+            w = np.where(y > z, float(p), 1.0 - float(p))
+        baseline[:, j] = z
+
+    return baseline, ymat - baseline
 
 
 def scale_values(values, mode):
@@ -203,7 +230,9 @@ def create_waterfall_tables(potentials, wavelengths, values, offset):
         y = values[:, j].astype(float)
         ymin = float(np.nanmin(y))
         vertical_offset = float(j * offset)
-        col_name = f"{pot:g} V"
+        # Unique column name: cyclic scans revisit the same potential.
+        # Preserve every spectrum in acquisition order (forward and reverse).
+        col_name = f"Spectrum_{j + 1:03d} ({pot:g} V)"
 
         raw_processed[col_name] = y
         shifted[col_name] = y - ymin + vertical_offset
@@ -331,7 +360,7 @@ def export_excel(path, out_dir, mode_name, potentials, wavelengths, raw, process
 def plot_surface(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_start, wl_final, suffix, label, z_range):
     fig = go.Figure()
     fig.add_trace(go.Surface(
-        x=potentials, y=wavelengths, z=z,
+        x=np.arange(len(potentials)), y=wavelengths, z=z,
         colorscale="Turbo",
         colorbar=dict(title=label),
         contours={"z": {"show": True, "usecolormap": True, "project_z": True}}
@@ -339,7 +368,7 @@ def plot_surface(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_st
     fig.update_layout(
         title=f"{mode_name}: Interactive 3D voltammogram ({wl_start:g}-{wl_final:g} nm)",
         scene=dict(
-            xaxis=dict(title="Potential / V"),
+            xaxis=scan_potential_axis(potentials),
             yaxis=axis_settings_wavelength(wl_start, wl_final),
             zaxis=axis_settings_intensity(label, z_range),
             camera=dict(eye=dict(x=1.55, y=-1.75, z=1.10)),
@@ -354,14 +383,14 @@ def plot_surface(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_st
 
 
 def plot_heatmap(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_start, wl_final, suffix, label, z_range):
-    kwargs = dict(x=potentials, y=wavelengths, z=z, colorscale="Turbo", colorbar=dict(title=label))
+    kwargs = dict(x=np.arange(len(potentials)), y=wavelengths, z=z, colorscale="Turbo", colorbar=dict(title=label))
     if z_range is not None:
         kwargs["zmin"] = z_range[0]
         kwargs["zmax"] = z_range[1]
     fig = go.Figure(go.Heatmap(**kwargs))
     fig.update_layout(
         title=f"{mode_name}: Heatmap ({wl_start:g}-{wl_final:g} nm)",
-        xaxis_title="Potential / V",
+        xaxis=scan_potential_axis(potentials),
         yaxis=axis_settings_wavelength(wl_start, wl_final),
         width=1050, height=760, margin=dict(l=70, r=20, b=60, t=70)
     )
@@ -372,7 +401,7 @@ def plot_heatmap(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_st
 
 def plot_contour(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_start, wl_final, suffix, label, z_range):
     kwargs = dict(
-        x=potentials, y=wavelengths, z=z, colorscale="Turbo",
+        x=np.arange(len(potentials)), y=wavelengths, z=z, colorscale="Turbo",
         contours=dict(coloring="heatmap", showlabels=True, labelfont=dict(size=10)),
         colorbar=dict(title=label)
     )
@@ -382,7 +411,7 @@ def plot_contour(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_st
     fig = go.Figure(go.Contour(**kwargs))
     fig.update_layout(
         title=f"{mode_name}: Contour plot ({wl_start:g}-{wl_final:g} nm)",
-        xaxis_title="Potential / V",
+        xaxis=scan_potential_axis(potentials),
         yaxis=axis_settings_wavelength(wl_start, wl_final),
         width=1050, height=760, margin=dict(l=70, r=20, b=60, t=70)
     )
@@ -400,20 +429,21 @@ def plot_waterfall(go, path, out_dir, mode_name, potentials, wavelengths, z, wl_
         pot = potentials[idx]
         fig.add_trace(go.Scatter3d(
             x=wavelengths,
-            y=np.full_like(wavelengths, pot, dtype=float),
+            y=np.full_like(wavelengths, idx, dtype=float),
+            customdata=np.full_like(wavelengths, pot, dtype=float),
             z=z[:, idx],
             mode="lines",
             line=dict(width=3),
             name=f"{pot:g} V",
             showlegend=False,
-            hovertemplate="Wavelength: %{x:.2f} nm<br>Potential: %{y:.4g} V<br>Value: %{z:.4g}<extra></extra>"
+            hovertemplate="Wavelength: %{x:.2f} nm<br>Potential: %{customdata:.4g} V<br>Scan index: %{y:.0f}<br>Value: %{z:.4g}<extra></extra>"
         ))
 
     fig.update_layout(
         title=f"{mode_name}: Rotatable waterfall plot ({wl_start:g}-{wl_final:g} nm)",
         scene=dict(
             xaxis=axis_settings_wavelength(wl_start, wl_final),
-            yaxis=dict(title="Potential / V"),
+            yaxis=scan_potential_axis(potentials),
             zaxis=axis_settings_intensity(label, z_range),
             camera=dict(eye=dict(x=1.55, y=-1.9, z=1.1)),
             aspectmode="manual",
@@ -430,7 +460,7 @@ class SpectroVoltammogramGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Absorpto-/Fluorovoltammogramm Analysis V4")
-        self.root.geometry("820x760")
+        self.root.geometry("900x900")
 
         self.csv_path = tk.StringVar()
         self.output_dir = tk.StringVar()
@@ -443,6 +473,11 @@ class SpectroVoltammogramGUI:
         self.savgol_window = tk.StringVar(value="11")
         self.savgol_poly = tk.StringVar(value="3")
         self.moving_window = tk.StringVar(value="5")
+
+        self.baseline_method = tk.StringVar(value="none")
+        self.als_lambda = tk.StringVar(value="100000")
+        self.als_p = tk.StringVar(value="0.001")
+        self.als_iterations = tk.StringVar(value="10")
 
         self.scaling = tk.StringVar(value="raw")
         self.auto_axis = tk.BooleanVar(value=True)
@@ -516,6 +551,17 @@ class SpectroVoltammogramGUI:
         ttk.Radiobutton(frm_proc, text="log1p", variable=self.scaling, value="log1p").grid(row=3, column=2, sticky="w", **pad)
         ttk.Radiobutton(frm_proc, text="Clip + log1p", variable=self.scaling, value="clip99_log1p").grid(row=3, column=3, sticky="w", **pad)
 
+        frm_baseline = ttk.LabelFrame(self.root, text="Baseline / background correction", style="Process.TLabelframe")
+        frm_baseline.pack(fill="x", **pad)
+        ttk.Radiobutton(frm_baseline, text="No baseline correction", variable=self.baseline_method, value="none").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Radiobutton(frm_baseline, text="Asymmetric Least Squares (AsLS/ALS)", variable=self.baseline_method, value="als").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="lambda:").grid(row=1, column=1, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_lambda, width=10).grid(row=1, column=2, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="p:").grid(row=1, column=3, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_p, width=8).grid(row=1, column=4, sticky="w", **pad)
+        ttk.Label(frm_baseline, text="Iterations:").grid(row=1, column=5, sticky="e", **pad)
+        ttk.Entry(frm_baseline, textvariable=self.als_iterations, width=6).grid(row=1, column=6, sticky="w", **pad)
+
         frm_axis = ttk.LabelFrame(self.root, text="Intensity / absorption axis", style="Axis.TLabelframe")
         frm_axis.pack(fill="x", **pad)
         ttk.Checkbutton(frm_axis, text="Automatic axis", variable=self.auto_axis).grid(row=0, column=0, sticky="w", **pad)
@@ -579,6 +625,21 @@ class SpectroVoltammogramGUI:
             messagebox.showerror("Error", str(e))
             self.write_log(f"ERROR: {e}")
 
+    def apply_baseline_correction(self, raw):
+        if self.baseline_method.get() == "none":
+            return raw.copy(), "No baseline correction"
+        lam = float(self.als_lambda.get().replace(",", "."))
+        p = float(self.als_p.get().replace(",", "."))
+        niter = int(self.als_iterations.get())
+        if lam <= 0:
+            raise ValueError("ALS lambda must be > 0.")
+        if not 0 < p < 1:
+            raise ValueError("ALS p must be between 0 and 1.")
+        if niter < 1:
+            raise ValueError("ALS iterations must be >= 1.")
+        _, corrected = asymmetric_least_squares_baseline(raw, lam, p, niter)
+        return corrected, f"ALS baseline correction, lambda={lam:g}, p={p:g}, iterations={niter}"
+
     def process_values(self, raw):
         mode = self.smoothing.get()
         if mode == "none":
@@ -629,7 +690,10 @@ class SpectroVoltammogramGUI:
             wavelengths = wavelengths[mask]
             raw = raw[mask, :]
 
-            processed, processing_text = self.process_values(raw)
+            corrected, baseline_text = self.apply_baseline_correction(raw)
+            self.write_log(f"Baseline: {baseline_text}")
+            processed, smoothing_text = self.process_values(corrected)
+            processing_text = f"{baseline_text}; {smoothing_text}"
             z, label, suffix = scale_values(processed, self.scaling.get())
             z_range = self.axis_range()
 
@@ -688,3 +752,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def scan_potential_axis(potentials, max_ticks=13):
+    """Chronological coordinate with potential values from CSV row 1 as ticks."""
+    n = len(potentials)
+    if n == 0:
+        return dict(title="Potential / V")
+    positions = np.unique(np.linspace(0, n - 1, min(n, max_ticks), dtype=int))
+    return dict(title="Potential / V (acquisition order)",
+                tickmode="array", tickvals=positions.tolist(),
+                ticktext=[f"{float(potentials[i]):.4g}" for i in positions])
+

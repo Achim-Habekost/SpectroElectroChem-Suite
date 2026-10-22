@@ -103,7 +103,7 @@ def read_raman_csv(csv_path: Path):
             "The CSV file could not be decoded with common encodings."
         ) from last_error
 
-    df = df.map(safe_float_text)
+    df = df.applymap(safe_float_text)
     df = df.dropna(how="all").dropna(axis=1, how="all")
 
     potentials = df.iloc[0, 1:].to_numpy(dtype=float)
@@ -126,9 +126,8 @@ def read_raman_csv(csv_path: Path):
         )
 
     # Sort axes
-    pot_order = np.argsort(potentials)
-    potentials = potentials[pot_order]
-    intensities = intensities[:, pot_order]
+    # Keep acquisition order: cyclic scans contain repeated potentials.
+    # Sorting by potential would destroy the forward/reverse scan sequence.
 
     wn_order = np.argsort(wavenumbers)
     wavenumbers = wavenumbers[wn_order]
@@ -274,7 +273,7 @@ def create_waterfall_tables(potentials, wavenumbers, values, offset):
         y = values[:, j].astype(float)
         ymin = float(np.nanmin(y))
         vertical_offset = float(j * offset)
-        col_name = f"{pot:g} V"
+        col_name = f"Spectrum_{j+1:03d}_{pot:g} V"
 
         unshifted[col_name] = y
         shifted[col_name] = y - ymin + vertical_offset
@@ -402,7 +401,7 @@ def add_z_axis_buttons(fig, z_plot, z_range):
 def plot_surface(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_start, wn_final, suffix, z_label, smooth_suffix, z_range=None, *args, **kwargs):
     fig = go.Figure()
     fig.add_trace(go.Surface(
-        x=potentials, y=wavenumbers, z=z_plot,
+        x=np.arange(len(potentials)), y=wavenumbers, z=z_plot,
         colorscale="Turbo",
         colorbar=dict(title=z_label),
         contours={"z": {"show": True, "usecolormap": True, "project_z": True}}
@@ -410,7 +409,7 @@ def plot_surface(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_star
     fig.update_layout(
         title=f"Interactive 3D Raman Voltammogram ({wn_start:g}-{wn_final:g} cm^-1)",
         scene=dict(
-            xaxis=dict(title="Potential / V"),
+            xaxis=scan_potential_axis(potentials),
             yaxis=wavenumber_axis_settings(wn_start, wn_final),
             zaxis=intensity_axis_settings(z_label, z_range),
             camera=dict(eye=dict(x=1.55, y=-1.75, z=1.10)),
@@ -431,13 +430,13 @@ def plot_surface(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_star
 def plot_heatmap(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_start, wn_final, suffix, z_label, smooth_suffix, z_range=None, *args, **kwargs):
     fig = go.Figure()
     fig.add_trace(go.Heatmap(
-        x=potentials, y=wavenumbers, z=z_plot,
+        x=np.arange(len(potentials)), y=wavenumbers, z=z_plot,
         colorscale="Turbo",
         colorbar=dict(title=z_label)
     ))
     fig.update_layout(
         title=f"Raman Voltammogram Heatmap ({wn_start:g}-{wn_final:g} cm^-1)",
-        xaxis_title="Potential / V", yaxis=wavenumber_axis_settings(wn_start, wn_final),
+        xaxis=scan_potential_axis(potentials), yaxis=wavenumber_axis_settings(wn_start, wn_final),
         width=1050, height=760, margin=dict(l=70, r=20, b=60, t=70)
     )
     html_path = out_dir / (
@@ -451,14 +450,14 @@ def plot_heatmap(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_star
 def plot_contour(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_start, wn_final, suffix, z_label, smooth_suffix, z_range=None, *args, **kwargs):
     fig = go.Figure()
     fig.add_trace(go.Contour(
-        x=potentials, y=wavenumbers, z=z_plot,
+        x=np.arange(len(potentials)), y=wavenumbers, z=z_plot,
         colorscale="Turbo",
         contours=dict(coloring="heatmap", showlabels=True, labelfont=dict(size=10)),
         colorbar=dict(title=z_label)
     ))
     fig.update_layout(
         title=f"Raman Voltammogram Contour Plot ({wn_start:g}-{wn_final:g} cm^-1)",
-        xaxis_title="Potential / V", yaxis=wavenumber_axis_settings(wn_start, wn_final),
+        xaxis=scan_potential_axis(potentials), yaxis=wavenumber_axis_settings(wn_start, wn_final),
         width=1050, height=760, margin=dict(l=70, r=20, b=60, t=70)
     )
     html_path = out_dir / (
@@ -481,7 +480,8 @@ def plot_waterfall(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_st
         pot = potentials[idx]
         fig.add_trace(go.Scatter3d(
             x=wavenumbers,
-            y=np.full_like(wavenumbers, pot, dtype=float),
+            y=np.full_like(wavenumbers, idx, dtype=float),
+            customdata=np.full_like(wavenumbers, pot, dtype=float),
             z=z_plot[:, idx] - np.nanmin(z_plot[:, idx]) + idx * waterfall_offset,
             mode="lines",
             line=dict(width=3),
@@ -489,7 +489,7 @@ def plot_waterfall(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_st
             showlegend=False,
             hovertemplate=(
                 "Wavenumber: %{x:.2f} cm^-1<br>"
-                "Potential: %{y:.4g} V<br>"
+                "Potential: %{customdata:.4g} V<br>Scan index: %{y:.0f}<br>"
                 "Intensity: %{z:.4g}<extra></extra>"
             )
         ))
@@ -498,7 +498,7 @@ def plot_waterfall(go, csv_path, out_dir, potentials, wavenumbers, z_plot, wn_st
         title=f"Rotatable Raman Waterfall Plot ({wn_start:g}-{wn_final:g} cm^-1)",
         scene=dict(
             xaxis=wavenumber_axis_settings(wn_start, wn_final),
-            yaxis=dict(title="Potential / V"),
+            yaxis=scan_potential_axis(potentials),
             zaxis=intensity_axis_settings(z_label, z_range),
             camera=dict(eye=dict(x=1.55, y=-1.9, z=1.1)),
             aspectmode="manual",
@@ -530,12 +530,16 @@ def plot_waterfall_2d(go, csv_path, out_dir, potentials, wavenumbers, values,
     traces = []
     for i in indices:
         y = np.asarray(values[:, i], dtype=float)
-        baseline = (n - 1 - i) * vertical_offset
+        baseline = i * vertical_offset
         shifted = y - np.nanmin(y) + baseline
         traces.append((i, shifted, baseline))
 
-    base = (f"{csv_path.stem}_wavenumber_{safe_name_number(wn_start)}_to_"
-            f"{safe_name_number(wn_final)}_waterfall_2d_{suffix}")
+    # Short, Windows-safe output name. Processing settings are retained in
+    # the Excel metadata; long descriptive filenames can exceed Windows limits.
+    import hashlib
+    signature = f"{csv_path.name}|{wn_start:g}|{wn_final:g}|{suffix}"
+    tag = hashlib.sha256(signature.encode("utf-8")).hexdigest()[:10]
+    base = f"{csv_path.stem[:45]}_raman2d_{tag}"
     html_path = out_dir / (base + ".html")
     png_path = out_dir / (base + ".png")
 
@@ -602,7 +606,7 @@ def plot_comparison_waterfall(go, csv_path, out_dir, potentials, wavenumbers,
 
         fig.add_trace(go.Scatter3d(
             x=wavenumbers,
-            y=np.full_like(wavenumbers, pot - dy, dtype=float),
+            y=np.full_like(wavenumbers, idx - 0.18, dtype=float),
             z=raw_intensities[:, idx],
             mode="lines",
             line=dict(width=2, color="rgba(120,120,120,0.45)"),
@@ -613,7 +617,7 @@ def plot_comparison_waterfall(go, csv_path, out_dir, potentials, wavenumbers,
 
         fig.add_trace(go.Scatter3d(
             x=wavenumbers,
-            y=np.full_like(wavenumbers, pot + dy, dtype=float),
+            y=np.full_like(wavenumbers, idx + 0.18, dtype=float),
             z=smoothed_intensities[:, idx],
             mode="lines",
             line=dict(width=5, color="rgba(0,60,220,0.95)"),
@@ -1077,3 +1081,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def scan_potential_axis(potentials, max_ticks=13):
+    """Chronological coordinate with potential values from CSV row 1 as ticks."""
+    n = len(potentials)
+    if n == 0:
+        return dict(title="Potential / V")
+    positions = np.unique(np.linspace(0, n - 1, min(n, max_ticks), dtype=int))
+    return dict(title="Potential / V (acquisition order)",
+                tickmode="array", tickvals=positions.tolist(),
+                ticktext=[f"{float(potentials[i]):.4g}" for i in positions])
+

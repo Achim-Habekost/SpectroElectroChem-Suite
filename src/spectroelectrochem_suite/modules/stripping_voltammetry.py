@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+if not hasattr(pd.DataFrame, "map"):
+    pd.DataFrame.map = pd.DataFrame.applymap
 
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices
@@ -59,7 +61,7 @@ def load_stripping_csv(path: str | Path):
     conc = np.array([_to_float(v) for v in raw.iloc[0, 1:]], dtype=float)
     potential = np.array([_to_float(v) for v in raw.iloc[1:, 0]], dtype=float)
     # pandas 2.1+ compatible; avoids deprecated/removed DataFrame.applymap().
-    current = raw.iloc[1:, 1:].map(_to_float).to_numpy(dtype=float)
+    current = raw.iloc[1:, 1:].applymap(_to_float).to_numpy(dtype=float)
 
     valid_rows = np.isfinite(potential) & np.any(np.isfinite(current), axis=1)
     potential = potential[valid_rows]
@@ -96,7 +98,7 @@ def load_unknown_csv(path: str | Path):
         first = np.nan
     start = 0 if np.isfinite(first) else 1
     potential = np.array([_to_float(v) for v in raw.iloc[start:, 0]], dtype=float)
-    currents = raw.iloc[start:, 1:].map(_to_float).to_numpy(dtype=float)
+    currents = raw.iloc[start:, 1:].applymap(_to_float).to_numpy(dtype=float)
     valid_rows = np.isfinite(potential) & np.any(np.isfinite(currents), axis=1)
     potential = potential[valid_rows]
     currents = currents[valid_rows, :]
@@ -141,7 +143,7 @@ def local_linear_baseline(x, y, x1, x2):
     y2 = np.interp(hi, x, y)
     baseline = y1 + (y2 - y1) * (xx - lo) / (hi - lo)
     corr = yy - baseline
-    area = float(np.trapezoid(corr, xx))
+    area = float(np.trapz(corr, xx))
     return xx, yy, baseline, corr, area
 
 
@@ -1030,7 +1032,8 @@ class StrippingWindow(QMainWindow):
                     for j, c in enumerate(ds["conc"]):
                         raw[f"Current / A; c={c:g} {unit}"] = ds["currents"][:, j]
                     raw.to_excel(writer, sheet_name=f"{method} Raw data", index=False)
-                    self.results[method].to_excel(writer, sheet_name=f"{method} Peak analysis", index=False)
+                    if self.results[method] is not None:
+                        self.results[method].to_excel(writer, sheet_name=f"{method} Peak analysis", index=False)
                     ures = self.unknown_results.get(method)
                     if ures is not None:
                         ures["table"].to_excel(writer, sheet_name=f"{method} Unknown", index=False)
