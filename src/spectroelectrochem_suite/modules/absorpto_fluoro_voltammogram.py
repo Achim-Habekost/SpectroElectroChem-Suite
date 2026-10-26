@@ -79,7 +79,7 @@ def read_voltammogram_csv(path: Path):
     else:
         raise UnicodeDecodeError("unknown", b"", 0, 1, "Could not decode CSV file.") from last_error
 
-    df = df.applymap(safe_float)
+    df = df.map(safe_float)
     df = df.dropna(how="all").dropna(axis=1, how="all")
 
     potentials = df.iloc[0, 1:].to_numpy(dtype=float)
@@ -750,10 +750,6 @@ def main():
     root.mainloop()
 
 
-if __name__ == "__main__":
-    main()
-
-
 def scan_potential_axis(potentials, max_ticks=13):
     """Chronological coordinate with potential values from CSV row 1 as ticks."""
     n = len(potentials)
@@ -764,3 +760,6 @@ def scan_potential_axis(potentials, max_ticks=13):
                 tickmode="array", tickvals=positions.tolist(),
                 ticktext=[f"{float(potentials[i]):.4g}" for i in positions])
 
+
+if __name__ == "__main__":
+    main()

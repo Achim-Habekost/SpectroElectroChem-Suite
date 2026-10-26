@@ -6,17 +6,18 @@ from PyInstaller.utils.hooks import collect_data_files
 ROOT = Path.cwd()
 
 datas = [
-    ("src/spectroelectrochem_suite/plugins/plugins.json", "spectroelectrochem_suite/plugins"),
-    ("docs/User_Manual.pdf", "docs"),
-    ("docs/index.html", "docs"),
-    ("run_plugin.py", "."),
+    (str(ROOT / "src" / "spectroelectrochem_suite" / "plugins" / "plugins.json"),
+     "spectroelectrochem_suite/plugins"),
+    (str(ROOT / "docs" / "User_Manual.pdf"), "docs"),
+    (str(ROOT / "docs" / "index.html"), "docs"),
+    (str(ROOT / "run_plugin.py"), "."),
 ]
 datas += collect_data_files("plotly")
 datas += collect_data_files("PySide6")
 
 a = Analysis(
-    ["main.py"],
-    pathex=["."],
+    [str(ROOT / "src" / "spectroelectrochem_suite" / "app.py")],
+    pathex=[str(ROOT / "src")],
     binaries=[],
     datas=datas,
     hiddenimports=[

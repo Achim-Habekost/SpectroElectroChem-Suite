@@ -103,7 +103,7 @@ def read_raman_csv(csv_path: Path):
             "The CSV file could not be decoded with common encodings."
         ) from last_error
 
-    df = df.applymap(safe_float_text)
+    df = df.map(safe_float_text)
     df = df.dropna(how="all").dropna(axis=1, how="all")
 
     potentials = df.iloc[0, 1:].to_numpy(dtype=float)

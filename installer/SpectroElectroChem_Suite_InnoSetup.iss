@@ -1,7 +1,7 @@
 ; Inno Setup script for SpectroElectroChem Suite v6.1.0
 
 #define MyAppName "SpectroElectroChem Suite"
-#define MyAppVersion "6.1.0"
+#define MyAppVersion "6.3.0"
 #define MyAppPublisher "Achim Habekost"
 #define MyAppExeName "SpectroElectroChem_Suite.exe"
 
@@ -15,14 +15,13 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=..\LICENSE
 OutputDir=..\dist_installer
-OutputBaseFilename=SpectroElectroChem_Suite_Setup_v6_1_0
+OutputBaseFilename=SpectroElectroChem_Suite_Setup_v6_3_0
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 
 [Files]
-Source: "..\dist\SpectroElectroChem_Suite\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-
+Source: "..\dist\SpectroElectroChem_Suite\*"; DestDir: "{app}"; Excludes: "*-Debug\*,*.obj"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Icons]
 Name: "{group}\SpectroElectroChem Suite"; Filename: "{app}\SpectroElectroChem_Suite.exe"
 Name: "{autodesktop}\SpectroElectroChem Suite"; Filename: "{app}\SpectroElectroChem_Suite.exe"

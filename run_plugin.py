@@ -1,12 +1,6 @@
 from pathlib import Path
 import sys
 
-from PySide6.QtCore import Qt
-
-Qt.KeyboardModifier.__int__ = lambda self: self.value
-Qt.ToolBarArea.__int__ = lambda self: self.value
-
-
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 

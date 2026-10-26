@@ -11,6 +11,7 @@ from scipy.signal import savgol_filter
 from scipy.interpolate import PchipInterpolator
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
+from matplotlib.ticker import MultipleLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
@@ -99,6 +100,7 @@ class MainWindow(QMainWindow):
         self.selection_colors = ["#7C3AED", "#F97316", "#0EA5E9", "#16A34A", "#DC2626", "#A16207", "#DB2777", "#475569"]
         self.cv_potential = None
         self.cv_currents = None
+        self.cv_currents_raw = None
         self.last_plot_html = None
 
         self._build_ui()
@@ -131,6 +133,13 @@ class MainWindow(QMainWindow):
         self.spec_format_label = QLabel("")
         self.spec_format_label.setStyleSheet("color: #52606d; font-style: italic;")
         files_grid.addWidget(self.spec_format_label,2,1)
+        files_grid.addWidget(QLabel("CV current unit (input CSV)"),3,0)
+        self.current_unit = QComboBox()
+        self.current_unit.addItems(["A", "mA", "µA"])
+        self.current_unit.setCurrentText("A")
+        self.current_unit.setToolTip("Unit of the numerical current values in the CV CSV; output is always in µA.")
+        self.current_unit.currentTextChanged.connect(self._update_cv_current_unit)
+        files_grid.addWidget(self.current_unit,3,1)
         outer.addWidget(files_box)
 
         params_row = QHBoxLayout()
@@ -301,8 +310,19 @@ class MainWindow(QMainWindow):
             # Individual Raman shifts are shown in the lower box.
             sel.addWidget(QLabel("Selected Raman shifts"))
         else:
-            self.range_mode = None
-            self.selected_ranges_list = None
+            self.range_mode = QCheckBox("Select wavelength ranges (two clicks; drag cursors)")
+            self.range_mode.setToolTip("Click twice to define an integration interval; drag either cursor to adjust it.")
+            self.range_mode.stateChanged.connect(self._cancel_pending_range)
+            sel.addWidget(self.range_mode)
+            sel.addWidget(QLabel("Selected wavelength ranges"))
+            self.selected_ranges_list = QListWidget()
+            sel.addWidget(self.selected_ranges_list)
+            remove_range_btn = QPushButton("Remove selected range")
+            remove_range_btn.clicked.connect(self._remove_selected_range)
+            sel.addWidget(remove_range_btn)
+            clear_ranges_btn = QPushButton("Clear ranges")
+            clear_ranges_btn.clicked.connect(self._clear_selected_ranges)
+            sel.addWidget(clear_ranges_btn)
             sel.addWidget(QLabel("Selected wavelengths"))
 
         self.selected = QListWidget()
@@ -397,7 +417,15 @@ class MainWindow(QMainWindow):
             return
         self.cv_path.setText(p)
         self.cv_potential = potential
-        self.cv_currents = currents
+        self.cv_currents_raw = currents
+        self._update_cv_current_unit()
+
+    def _update_cv_current_unit(self, *args):
+        """Keep imported numbers intact and normalize current internally to A."""
+        if self.cv_currents_raw is None:
+            return
+        factor = {"A": 1.0, "mA": 1e-3, "µA": 1e-6}[self.current_unit.currentText()]
+        self.cv_currents = self.cv_currents_raw * factor
 
     @staticmethod
     def _read_cv_csv(path: Path):
@@ -437,6 +465,9 @@ class MainWindow(QMainWindow):
         self.spec_path.setText(p)
         self.wavelengths = wavelengths
         self.spectra = spectra
+        self.selected_ranges = []
+        self.pending_range_start = None
+        self._update_selected_ranges_list()
         if orientation == "column":
             self.spec_format_label.setText(("Original Raman format detected: first column = Raman shift; following columns = individual spectra — transposed internally." if self.spectral_mode == "Raman" else "Original spectral format detected (spectral axis in first column) — transposed internally."))
         else:
@@ -648,8 +679,9 @@ class MainWindow(QMainWindow):
     def _update_selected_ranges_list(self):
         if self.selected_ranges_list is None: return
         self.selected_ranges_list.clear()
+        unit = "cm⁻¹" if self.spectral_mode == "Raman" else "nm"
         for lo, hi in self.selected_ranges:
-            self.selected_ranges_list.addItem(f"{lo:.1f} – {hi:.1f} cm⁻¹")
+            self.selected_ranges_list.addItem(f"{lo:.1f} – {hi:.1f} {unit}")
 
     def _remove_selected_range(self):
         if self.selected_ranges_list is None: return
@@ -685,18 +717,10 @@ class MainWindow(QMainWindow):
         old_xlim = self.ax.get_xlim() if preserve_view and self.ax.has_data() else None
         old_ylim = self.ax.get_ylim() if preserve_view and self.ax.has_data() else None
         self.ax.clear()
-        # Raman: show every individual spectrum in the preview so the user can
-        # directly judge the complete time/potential series. Other modes retain
-        # the compact representative preview.
-        if self.spectral_mode == "Raman":
-            indices = np.arange(data.shape[0], dtype=int)
-            line_alpha = 0.30
-            line_width = 0.55
-        else:
-            n_show = min(12, data.shape[0])
-            indices = np.unique(np.linspace(0, data.shape[0] - 1, n_show).astype(int))
-            line_alpha = 0.55
-            line_width = 0.8
+        # Display every imported spectrum in all modes, including Absorbance.
+        indices = np.arange(data.shape[0], dtype=int)
+        line_alpha = 0.30
+        line_width = 0.55
 
         for idx in indices:
             self.ax.plot(self.wavelengths, data[idx], linewidth=line_width, alpha=line_alpha)
@@ -717,6 +741,8 @@ class MainWindow(QMainWindow):
 
         self.ax.set_xlabel(self._spectral_x_label())
         self.ax.set_ylabel(self._spectral_y_label())
+        if self.spectral_mode != "Raman":
+            self.ax.xaxis.set_major_locator(MultipleLocator(100))
         self.ax.grid(True, alpha=0.2)
         handles, labels = self.ax.get_legend_handles_labels()
         if handles:
@@ -800,7 +826,7 @@ class MainWindow(QMainWindow):
         if event.button != 1:
             return
 
-        if self.spectral_mode=="Raman" and self.range_mode is not None and self.range_mode.isChecked():
+        if self.range_mode is not None and self.range_mode.isChecked():
             # Existing range boundaries can be moved. Hit testing is in screen
             # pixels, so it remains precise when the spectrum is zoomed.
             click_x_px = float(event.x)
@@ -1052,11 +1078,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Synchronize + Plot", "Please load a spectra CSV first.")
             return
         has_point_selection = bool(self.selected_wavelengths)
-        has_range_selection = (
-            self.spectral_mode == "Raman"
-            and hasattr(self, "selected_ranges")
-            and bool(self.selected_ranges)
-        )
+        has_range_selection = bool(self.selected_ranges)
         if not (has_point_selection or has_range_selection):
             QMessageBox.information(
                 self, "Synchronize + Plot",
@@ -1092,11 +1114,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Export", "Please load a spectra CSV first.")
             return False
         has_point_selection = bool(self.selected_wavelengths)
-        has_range_selection = (
-            self.spectral_mode == "Raman"
-            and hasattr(self, "selected_ranges")
-            and bool(self.selected_ranges)
-        )
+        has_range_selection = bool(self.selected_ranges)
         if not (has_point_selection or has_range_selection):
             QMessageBox.information(
                 self, "Export",
@@ -1257,7 +1275,10 @@ class MainWindow(QMainWindow):
             dS = signal[i] - signal[i - 1]
             if not np.isfinite(dE) or not np.isfinite(dS) or abs(dE) < 1e-15:
                 continue
-
+            if i >= 2:
+                previous_dE = potential[i - 1] - potential[i - 2]
+                if np.isfinite(previous_dE) and previous_dE * dE < 0:
+                    continue  # turning point: never differentiate across branches
             deriv[i] = dS / dE
 
         return deriv
@@ -1310,7 +1331,7 @@ class MainWindow(QMainWindow):
                     "Spectral smoothing", "Spectral smoothing window / points",
                     "Raman baseline correction", "Baseline lambda", "AsLS p",
                     "Derivative presentation", "Derivative SG window / points",
-                    "Selected spectral positions"
+                    "Selected spectral positions", "CV current input unit", "Selected integrated ranges"
                 ],
                 "Value": [
                     self.spectral_mode, self.e_start.value(), self.e_switch.value(),
@@ -1323,7 +1344,9 @@ class MainWindow(QMainWindow):
                     (self.asls_p.value() if self.spectral_mode == "Raman" else "n/a"),
                     self.derivative_presentation.currentText(),
                     self.derivative_window.value(),
-                    ", ".join(f"{x:.3f}" for x in self.selected_wavelengths)
+                    ", ".join(f"{x:.3f}" for x in self.selected_wavelengths),
+                    self.current_unit.currentText(),
+                    ", ".join(f"{lo:.2f}-{hi:.2f}" for lo,hi in self.selected_ranges)
                 ]
             })
 
@@ -1349,10 +1372,11 @@ class MainWindow(QMainWindow):
                 selected_actual.append((idx, actual))
                 sync_data[f"Signal_{actual:.3f}_{unit}"] = spec_proc[:, idx]
             range_actual=[]
-            if self.spectral_mode=="Raman":
+            if self.selected_ranges:
                 for rlo,rhi in self.selected_ranges:
                     rsig=self._integrated_range_signal(spec_proc,rlo,rhi)
-                    rheader=f"Integrated_Raman_{rlo:.1f}-{rhi:.1f}_cm-1"
+                    rheader=(f"Integrated_Raman_{rlo:.1f}-{rhi:.1f}_cm-1" if self.spectral_mode == "Raman"
+                             else f"Integrated_{self.spectral_mode}_{rlo:.1f}-{rhi:.1f}_nm")
                     sync_data[rheader]=rsig
                     range_actual.append((rlo,rhi,rheader,rsig))
             sync_df = pd.DataFrame(sync_data)
@@ -1410,8 +1434,8 @@ class MainWindow(QMainWindow):
                 # This makes range-only selections fully equivalent to selecting
                 # an individual Raman shift for derivative analysis.
                 sig_header = rheader
-                dheader = f"dIntegrated_Raman_dE_{rlo:.1f}-{rhi:.1f}_cm-1_per_V"
-                sdheader = f"dIntegrated_Raman_dAbsE_{rlo:.1f}-{rhi:.1f}_cm-1_per_V"
+                dheader = f"d{rheader}_dE_per_V"
+                sdheader = f"d{rheader}_dAbsE_per_V"
 
                 derivative_chart_df[sig_header] = rsig
                 derivative_chart_df[dheader] = self._potential_derivative(
@@ -1431,14 +1455,14 @@ class MainWindow(QMainWindow):
             max_display_len = 0
             display_pairs = []
 
-            for k, sdheader in enumerate(scan_derivative_headers):
+            for k, dheader in enumerate(derivative_headers):
                 for s in range(1, int(self.cycles.value()) + 1):
                     inds = np.flatnonzero(scan_spec == s)
                     if len(inds) == 0:
                         continue
 
                     xs = e_spec[inds]
-                    ys = derivative_chart_df.loc[inds, sdheader].to_numpy(dtype=float)
+                    ys = derivative_chart_df.loc[inds, dheader].to_numpy(dtype=float)
                     xd, yd = self._derivative_display_series(xs, ys)
 
                     # X and Y from one curve must always have identical lengths.
@@ -1505,14 +1529,14 @@ class MainWindow(QMainWindow):
                         else:
                             cname = f"Mean_signal_{actual_mean:.3f}_nm"
                         mean_cols[cname] = pd.Series(ymean)
-                if self.spectral_mode=="Raman":
+                if self.selected_ranges:
                     for rlo,rhi in self.selected_ranges:
                         rsig=self._integrated_range_signal(spectra_mean,rlo,rhi)
                         emean,ymean=self._cycle_mean_trace(e_mean,scan_mean,rsig)
                         if len(emean):
                             if "Potential_V_signal_mean" not in mean_cols:
                                 mean_cols["Potential_V_signal_mean"]=pd.Series(emean)
-                            mean_cols[f"Mean_Integrated_Raman_{rlo:.1f}-{rhi:.1f}_cm-1"]=pd.Series(ymean)
+                            mean_cols[f"Mean_Integrated_{self.spectral_mode}_{rlo:.1f}-{rhi:.1f}"]=pd.Series(ymean)
 
                 mean_export_df = pd.DataFrame(mean_cols)
 
@@ -1646,6 +1670,7 @@ class MainWindow(QMainWindow):
                     "min": float(np.nanmin(self.wavelengths)),
                     "max": float(np.nanmax(self.wavelengths)),
                     "major_gridlines": {"visible": True},
+                    **({"major_unit": 100} if self.spectral_mode != "Raman" else {}),
                 })
                 syr = self._padded_range(spec_proc, fraction=0.06)
                 syopts = {"name": self._spectral_y_label(), "major_gridlines": {"visible": True}}
@@ -1836,7 +1861,7 @@ class MainWindow(QMainWindow):
                             line_opts["dash_type"] = dash
                         # Visible derivative uses the selected presentation mode
                         # (None / Savitzky-Golay / PCHIP) from a plot-only helper table.
-                        scan_dheader = scan_derivative_headers[k]
+                        scan_dheader = derivative_headers[k]
                         helper_pair = 2 * (k * int(self.cycles.value()) + (s - 1))
                         helper_x_col = derivative_display_start_col + helper_pair
                         helper_y_col = helper_x_col + 1
@@ -1867,7 +1892,7 @@ class MainWindow(QMainWindow):
                     derivative_axis_name = "derived fluorescence / 1/V"
                 else:
                     if self.spectral_mode == "Raman" and self.selected_ranges and not self.selected_wavelengths:
-                        derivative_axis_name = "Scan-direction derivative of integrated Raman intensity / (a.u. cm⁻¹ V⁻¹)"
+                        derivative_axis_name = "Derivative of integrated Raman intensity / (a.u. cm⁻¹ V⁻¹)"
                     else:
                         derivative_axis_name = "derived Raman signal / 1/V"
 
@@ -1989,7 +2014,7 @@ class MainWindow(QMainWindow):
                     ax2.plot(em,ym,color=colors[k % len(colors)],linewidth=3.2,alpha=0.78,
                              label=f"{actual:.1f} {unit} – mean")
 
-        if self.spectral_mode=="Raman":
+        if self.selected_ranges:
             for q,(rlo,rhi) in enumerate(self.selected_ranges):
                 signal=self._integrated_range_signal(spectral,rlo,rhi)
                 color=colors[(len(self.selected_wavelengths)+q)%len(colors)]
@@ -1997,11 +2022,11 @@ class MainWindow(QMainWindow):
                     m=scan_spec==sc
                     ax2.plot(e_spec[m],signal[m],color=color,linewidth=1.7,
                              linestyle=dash_mpl[(sc-1)%len(dash_mpl)],
-                             label=f"{rlo:.1f}–{rhi:.1f} cm⁻¹ area – scan {sc}")
+                             label=f"{rlo:.1f}–{rhi:.1f} {unit} area – scan {sc}")
                 if self.show_cycle_mean.isChecked() and int(self.cycles.value())>1:
                     em,ym=self._cycle_mean_trace(e_spec,scan_spec,signal)
                     if len(em): ax2.plot(em,ym,color=color,linewidth=3.2,alpha=.78,
-                                        label=f"{rlo:.1f}–{rhi:.1f} cm⁻¹ area – mean")
+                                        label=f"{rlo:.1f}–{rhi:.1f} {unit} area – mean")
 
         # Tight, data-driven axes. Keep the potential interval close to the entered CV range.
         e_span = max(e_hi - e_lo, 1e-9)
@@ -2118,21 +2143,21 @@ class MainWindow(QMainWindow):
                                        "Mean signal: %{y:.4f}<extra></extra>")),
                         row=1,col=1,secondary_y=True)
 
-        if self.spectral_mode=="Raman":
+        if self.selected_ranges:
             for q,(rlo,rhi) in enumerate(self.selected_ranges):
                 signal=self._integrated_range_signal(spectral,rlo,rhi)
                 color=colors[(len(self.selected_wavelengths)+q)%len(colors)]
                 for sc in range(1,int(self.cycles.value())+1):
                     m=scan_spec==sc
                     fig.add_trace(go.Scatter(x=e_spec[m],y=signal[m],mode="lines",
-                        name=f"{rlo:.1f}–{rhi:.1f} cm⁻¹ area – scan {sc}",
+                        name=f"{rlo:.1f}–{rhi:.1f} {unit} area – scan {sc}",
                         line=dict(color=color,width=2.5,dash=dash_styles[(sc-1)%len(dash_styles)])),
                         row=1,col=1,secondary_y=True)
                 if self.show_cycle_mean.isChecked() and int(self.cycles.value())>1:
                     em,ym=self._cycle_mean_trace(e_spec,scan_spec,signal)
                     if len(em):
                         fig.add_trace(go.Scatter(x=em,y=ym,mode="lines",
-                            name=f"{rlo:.1f}–{rhi:.1f} cm⁻¹ area – mean",
+                            name=f"{rlo:.1f}–{rhi:.1f} {unit} area – mean",
                             line=dict(color=color,width=4.5,dash="solid"),opacity=.78),
                             row=1,col=1,secondary_y=True)
 
